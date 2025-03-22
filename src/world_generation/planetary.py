@@ -76,11 +76,13 @@ class PlanetarySystem:
         self.update_sun_position()
 
         print(
-              f"Initialized planetary system with {axial_tilt_degrees}° axial tilt"
-             )
+            f"Initialized planetary system with "
+            f"{axial_tilt_degrees}° axial tilt"
+        )
         print(
-              f"Year length: {year_length_days} days, Day length: {day_length_hours} hours"
-             )
+            f"Year length: {year_length_days} days, "
+            f"Day length: {day_length_hours} hours"
+        )
         msg = f"Planet radius: {self.planet_radius_km:.1f} km, "
         msg += f"Cell size: {self.km_per_cell:.1f} km"
         print(msg)
@@ -121,8 +123,10 @@ class PlanetarySystem:
         # Calculate the julian date for ephem
         # This is simplified - we're just using a base date
         # and adding our simulation time
-        days_since_epoch = self.current_day + (hour_fraction 
-                                               * self.day_length_hours / 24.0)
+        days_since_epoch = (
+            self.current_day
+            + (hour_fraction * self.day_length_hours / 24.0)
+        )
         self.observer.date = self.epoch + timedelta(days=days_since_epoch)
 
         # Update the sun's position
@@ -211,14 +215,20 @@ class PlanetarySystem:
                     radiation = np.sin(float(self.sun.alt))
 
                     # Apply orbital distance factor
-                    year_angle = 2 * np.pi * (self.current_day / self.year_length_days)
-                    perihelion_angle = 2 * np.pi * (self.perihelion_day / self.year_length_days)
+                    year_angle = (
+                        2 * np.pi * (self.current_day / self.year_length_days)
+                    )
+                    perihelion_angle = (
+                        2 * np.pi 
+                        * (self.perihelion_day / self.year_length_days)
+                    )
                     angle_diff = (year_angle - perihelion_angle) % (2 * np.pi)
 
                     # Distance factor due to eccentricity (1 - e*cos(angle))
                     distance_factor = 1 - self.eccentricity * np.cos(angle_diff)
 
                     # Solar radiation is inversely proportional to square of distance
+                    # of the planet from its sun
                     orbital_factor = 1 / (distance_factor ** 2)
 
                     self.solar_radiation[y, x] = radiation * orbital_factor
@@ -256,7 +266,10 @@ class PlanetarySystem:
 
         month_name = months[month_idx]
 
-        return f"Day {calendar_day} ({month_name} {day_of_month}), {hour:02d}:{minute:02d}"
+        return (
+            f"Day {calendar_day} ({month_name} {day_of_month}), "
+            f"{hour:02d}:{minute:02d}"
+        )
 
     def get_season(self) -> str:
         """Get the current season based on day of year.
@@ -310,7 +323,9 @@ class PlanetarySystem:
         # At equinox, sun at equator is at 90° at noon, and at poles is at 0°
         equinox_altitude = np.radians(90 - abs(latitude))
         seasonal_effect = (max_altitude - equinox_altitude) / (np.pi/2)
-        seasonal_effect = np.clip(seasonal_effect * self.seasonal_factor, -1.0, 1.0)
+        seasonal_effect = np.clip(
+            seasonal_effect * self.seasonal_factor, -1.0, 1.0
+        )
 
         return seasonal_effect
 
@@ -337,7 +352,9 @@ class PlanetarySystem:
             sunset = observer.next_setting(ephem.Sun())
 
             # Calculate time difference in hours
-            time_diff = (sunset.datetime() - sunrise.datetime()).total_seconds() / 3600.0
+            time_diff = (
+                (sunset.datetime() - sunrise.datetime()).total_seconds() / 3600.0
+            )
 
             # Scale to match our custom day length
             scaled_time = time_diff * (self.day_length_hours / 24.0)
@@ -368,24 +385,30 @@ class PlanetarySystem:
             ax = plt.gca()
 
         # Create a world map projection
-        img = ax.imshow(self.day_night_mask, cmap="Blues",
-                       extent=[-180, 180, -90, 90],
-                       interpolation="nearest",
-                       origin="upper")
+        img = ax.imshow(
+            self.day_night_mask, cmap="Blues",
+            extent=[-180, 180, -90, 90],
+            interpolation="nearest",
+            origin="upper"
+        )
 
         # Add grid lines
         ax.grid(linestyle=":", color="gray", alpha=0.5)
 
         # Add date/time information
         date_str = self.get_formatted_date()
-        ax.text(0.02, 0.02, date_str, transform=ax.transAxes,
-               bbox=dict(facecolor="white", alpha=0.7, edgecolor="gray"))
+        ax.text(
+            0.02, 0.02, date_str, transform=ax.transAxes,
+            bbox=dict(facecolor="white", alpha=0.7, edgecolor="gray")
+        )
 
         # Add season information
         season = self.get_season()
-        ax.text(0.98, 0.02, f"Season: {season}", transform=ax.transAxes,
-               horizontalalignment="right",
-               bbox=dict(facecolor="white", alpha=0.7, edgecolor="gray"))
+        ax.text(
+            0.98, 0.02, f"Season: {season}", transform=ax.transAxes,
+            horizontalalignment="right",
+            bbox=dict(facecolor="white", alpha=0.7, edgecolor="gray")
+        )
 
         ax.set_title(title)
         ax.set_xlabel("Longitude")
@@ -408,18 +431,22 @@ class PlanetarySystem:
             ax = plt.gca()
 
         # Create a world map projection
-        img = ax.imshow(self.solar_radiation, cmap="YlOrRd",
-                       extent=[-180, 180, -90, 90],
-                       interpolation="nearest",
-                       origin="upper")
+        img = ax.imshow(
+            self.solar_radiation, cmap="YlOrRd",
+            extent=[-180, 180, -90, 90],
+            interpolation="nearest",
+            origin="upper"
+        )
 
         # Add grid lines
         ax.grid(linestyle=":", color="gray", alpha=0.5)
 
         # Add date/time information
         date_str = self.get_formatted_date()
-        ax.text(0.02, 0.02, date_str, transform=ax.transAxes,
-               bbox=dict(facecolor="white", alpha=0.7, edgecolor="gray"))
+        ax.text(
+            0.02, 0.02, date_str, transform=ax.transAxes,
+            bbox=dict(facecolor="white", alpha=0.7, edgecolor="gray")
+        )
 
         # Add a colorbar
         plt.colorbar(img, ax=ax, label="Radiation Intensity")
