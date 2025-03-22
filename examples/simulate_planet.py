@@ -12,6 +12,9 @@ from matplotlib.animation import FuncAnimation
 # Import from the world_generation package
 from src.world_generation import PlanetarySystem
 
+# pylint: disable=protected-access
+# pylint: disable=unused-variable
+
 
 def demonstrate_day_cycle(planet, steps=24):
     """Demonstrate a full day cycle with animated visualization.
@@ -36,15 +39,15 @@ def demonstrate_day_cycle(planet, steps=24):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
     # Set up the plots
-    day_night_img = planet.visualize_day_night(ax=ax1,
-                                               title="Day/Night Cycle")
-    solar_img = planet.visualize_solar_radiation(ax=ax2,
-                                                 title="Solar Radiation")
+    day_night_img = planet.visualize_day_night(
+        ax=ax1, title="Day/Night Cycle")
+    solar_img = planet.visualize_solar_radiation(
+        ax=ax2, title="Solar Radiation")
 
     plt.tight_layout()
 
     # Function to update the plots for each frame
-    def update(frame):
+    def update(_frame):  # Using _frame to indicate unused parameter
         # Advance time by one hour
         hours_per_step = planet.day_length_hours / steps
         planet.advance_time(hours=hours_per_step)
@@ -62,6 +65,8 @@ def demonstrate_day_cycle(planet, steps=24):
     # Create the animation - animation variable needs to be kept
     # even if not used, to prevent garbage collection
     ani = FuncAnimation(fig, update, frames=steps, blit=False, repeat=True)
+    # Using _ to suppress the unused variable warning but keep the reference
+    _ = ani
 
     plt.suptitle("One Day Cycle Animation", fontsize=16)
     plt.show()
@@ -75,7 +80,8 @@ def demonstrate_day_cycle(planet, steps=24):
 
 
 def demonstrate_seasonal_cycle(planet, steps=12):
-    """Demonstrate seasonal changes throughout a year with animated visualization.
+    """Demonstrate seasonal changes throughout a year
+    with animated visualization.
     
     Args:
         planet: PlanetarySystem instance
@@ -116,18 +122,20 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     # Set up initial plots
     temp_map, day_map = create_seasonal_maps()
 
-    temp_img = ax1.imshow(temp_map, cmap="RdBu_r",
-                         extent=[-180, 180, -90, 90],
-                         interpolation="nearest",
-                         origin="upper",
-                         vmin=-20, vmax=20)
+    temp_img = ax1.imshow(
+        temp_map, cmap="RdBu_r",
+        extent=[-180, 180, -90, 90],
+        interpolation="nearest",
+        origin="upper",
+        vmin=-20, vmax=20)
     plt.colorbar(temp_img, ax=ax1, label="Temperature Modifier (°C)")
 
-    day_img = ax2.imshow(day_map, cmap="viridis",
-                        extent=[-180, 180, -90, 90],
-                        interpolation="nearest",
-                        origin="upper",
-                        vmin=0, vmax=planet.day_length_hours)
+    day_img = ax2.imshow(
+        day_map, cmap="viridis",
+        extent=[-180, 180, -90, 90],
+        interpolation="nearest",
+        origin="upper",
+        vmin=0, vmax=planet.day_length_hours)
     plt.colorbar(day_img, ax=ax2, label="Daylight Hours")
 
     # Add grid lines
@@ -135,9 +143,9 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     ax2.grid(linestyle=":", color="gray", alpha=0.5)
 
     # Function to update the plots for each frame
-    def update(frame):
+    def update(_frame):  # Using _frame to indicate unused parameter
         # Set day to evenly spaced points throughout the year
-        day = int(frame * (planet.year_length_days / steps))
+        day = int(_frame * (planet.year_length_days / steps))
         planet.current_day = day
         planet._update_sun_position()
 
@@ -159,6 +167,8 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     # Create the animation - animation variable needs to be kept
     # even if not used, to prevent garbage collection
     ani = FuncAnimation(fig, update, frames=steps, blit=False, repeat=True)
+    # Using _ to suppress the unused variable warning but keep the reference
+    _ = ani
 
     plt.suptitle("Seasonal Cycle Throughout the Year", fontsize=16)
     plt.tight_layout()
