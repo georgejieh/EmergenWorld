@@ -425,12 +425,14 @@ class TerrainGenerator:
 
                     # Add some width to larger rivers
                     # (thicker near the end)
-                    river_width = 1 + int(len(river_path) / 50)  # Scale width with length
+                    # Scale width with length
+                    river_width = 1 + int(len(river_path) / 50)
                     if river_width > 1:
                         for wy in range(max(0, py-river_width//2),
                                         min(self.size, py+(river_width+1)//2)):
                             for wx in range(max(0, px-river_width//2),
-                                           min(self.size, px+(river_width+1)//2)):
+                                           min(self.size,
+                                               px+(river_width+1)//2)):
                                 # Circular brush
                                 if ((wy - py)**2 + (wx - px)**2 <=
                                         (river_width//2)**2):
@@ -463,8 +465,10 @@ class TerrainGenerator:
         # Create a lake mask
         lake_mask = np.zeros_like(self.heightmap)
 
-        # Find local minima in the terrain (excluding very low areas that are likely ocean)
-        # We use a simple approach: a cell is a local minimum if it's lower than its neighbors
+        # Find local minima in the terrain
+        # (excluding very low areas that are likely ocean)
+        # We use a simple approach: a cell is a local minimum
+        # if it's lower than its neighbors
         minima = []
         for y in range(1, self.size - 1):
             for x in range(1, self.size - 1):
@@ -498,7 +502,8 @@ class TerrainGenerator:
                     # Store as (y, x, height)
                     minima.append((y, x, height))
 
-        # Sort minima by height (shallow depressions first - they make better lakes)
+        # Sort minima by height
+        # (shallow depressions first - they make better lakes)
         minima.sort(key=lambda m: m[2])
 
         # Try to create lakes at the minima
@@ -517,7 +522,8 @@ class TerrainGenerator:
             target_size = np.random.randint(min_size, max_size)
 
             # Maximum height for this lake (higher = larger lake)
-            height_threshold = self.heightmap[y, x] + np.random.uniform(0.02, 0.08)
+            height_threshold = (self.heightmap[y, x] +
+                                np.random.uniform(0.02, 0.08))
 
             while queue and len(lake_cells) < target_size:
                 cy, cx = queue.pop(0)
