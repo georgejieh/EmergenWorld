@@ -13,7 +13,6 @@ from matplotlib.animation import FuncAnimation
 from src.world_generation import PlanetarySystem
 
 # pylint: disable=protected-access
-# pylint: disable=unused-variable
 
 
 def demonstrate_day_cycle(planet, steps=24):
@@ -47,7 +46,8 @@ def demonstrate_day_cycle(planet, steps=24):
     plt.tight_layout()
 
     # Function to update the plots for each frame
-    def update(dummy_frame):  # Parameter required by FuncAnimation but not used
+    # pylint: disable=unused-argument
+    def update(frame):
         # Advance time by one hour
         hours_per_step = planet.day_length_hours / steps
         planet.advance_time(hours=hours_per_step)
@@ -143,9 +143,10 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     ax2.grid(linestyle=":", color="gray", alpha=0.5)
 
     # Function to update the plots for each frame
-    def update(dummy_frame):  # Parameter required by FuncAnimation but not used
+    # pylint: disable=unused-argument
+    def update(frame):
         # Set day to evenly spaced points throughout the year
-        day = int(dummy_frame * (planet.year_length_days / steps))
+        day = int(frame * (planet.year_length_days / steps))
         planet.current_day = day
         planet._update_sun_position()
 
