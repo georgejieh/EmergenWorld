@@ -36,8 +36,10 @@ def demonstrate_day_cycle(planet, steps=24):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
     # Set up the plots
-    day_night_img = planet.visualize_day_night(ax=ax1, title="Day/Night Cycle")
-    solar_img = planet.visualize_solar_radiation(ax=ax2, title="Solar Radiation")
+    day_night_img = planet.visualize_day_night(ax=ax1,
+                                               title="Day/Night Cycle")
+    solar_img = planet.visualize_solar_radiation(ax=ax2,
+                                                 title="Solar Radiation")
 
     plt.tight_layout()
 
@@ -114,15 +116,15 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     # Set up initial plots
     temp_map, day_map = create_seasonal_maps()
 
-    temp_img = ax1.imshow(temp_map, cmap="RdBu_r", 
-                         extent=[-180, 180, -90, 90], 
+    temp_img = ax1.imshow(temp_map, cmap="RdBu_r",
+                         extent=[-180, 180, -90, 90],
                          interpolation="nearest",
                          origin="upper",
                          vmin=-20, vmax=20)
     plt.colorbar(temp_img, ax=ax1, label="Temperature Modifier (°C)")
 
-    day_img = ax2.imshow(day_map, cmap="viridis", 
-                        extent=[-180, 180, -90, 90], 
+    day_img = ax2.imshow(day_map, cmap="viridis",
+                        extent=[-180, 180, -90, 90],
                         interpolation="nearest",
                         origin="upper",
                         vmin=0, vmax=planet.day_length_hours)
