@@ -215,11 +215,13 @@ class TerrainGenerator:
             raise ValueError("Heightmap must be generated "
                              "before adding mountains")
 
-        print(f"Adding EPIC fantasy mountain ranges (epicness factor: {epic_factor:.1f})...")
+        print("Adding EPIC fantasy mountain ranges "
+              f"(epicness factor: {epic_factor:.1f})...")
 
         # Generate a mountain mask using different noise parameters
         mountain_mask = np.zeros((self.size, self.size))
-        mountain_seed = self.seed + 1000  # Different seed for mountain generation
+        # Different seed for mountain generation
+        mountain_seed = self.seed + 1000
         mountain_noise = OpenSimplex(seed=mountain_seed)
 
         for y in range(self.size):
@@ -254,7 +256,8 @@ class TerrainGenerator:
             mountain_scale * (mountain_mask[mountain_areas] - peak_threshold))
 
         # Then add epic peaks by emphasizing the highest portions
-        high_peaks = (mountain_mask > peak_threshold + 0.2) & (mountain_terrain > 0.7)
+        high_peaks = ((mountain_mask > peak_threshold + 0.2) &
+                      (mountain_terrain > 0.7))
         if np.any(high_peaks):
             # Apply exponential height increase for the highest peaks
             peak_height = mountain_terrain[high_peaks]
@@ -303,7 +306,8 @@ class TerrainGenerator:
         # Create a river mask (1 where rivers exist, 0 elsewhere)
         river_mask = np.zeros_like(self.heightmap)
 
-        # Find high elevation points for river sources (excluding the very edges)
+        # Find high elevation points
+        # for river sources (excluding the very edges)
         border = 5
         interior_heightmap = self.heightmap[border:-border, border:-border]
         # Get indices in the interior heightmap
@@ -318,10 +322,13 @@ class TerrainGenerator:
 
         # Choose random starting points from high elevations
         if len(high_points_x) < river_count:
-            print(f"Warning: Only {len(high_points_x)} suitable source points found")
+            print(f"Warning: Only {len(high_points_x)} "
+                   "suitable source points found")
             river_count = len(high_points_x)
 
-        source_indices = np.random.choice(len(high_points_x), size=river_count, replace=False)
+        source_indices = np.random.choice(len(high_points_x),
+                                          size=river_count,
+                                          replace=False)
 
         rivers_created = 0
 
