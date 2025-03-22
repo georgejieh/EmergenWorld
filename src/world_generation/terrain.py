@@ -49,9 +49,11 @@ class TerrainGenerator:
         # Calculate km per grid cell
         self.km_per_cell = self.scaled_circumference_km / size
         self.area_per_cell_sqkm = self.km_per_cell ** 2
-        self.area_per_cell_sqmiles = self.area_per_cell_sqkm * 0.386102  # Convert to sq miles
+        self.area_per_cell_sqmiles = self.area_per_cell_sqkm
+                                     * 0.386102  # Convert to sq miles
 
-        print(f"Initialized terrain generator for world at {earth_scale:.4%} of Earth's size")
+        print(f"Initialized terrain generator "
+              f"for world at {earth_scale:.4%} of Earth's size")
         print(f"World radius: {self.scaled_radius_km:.1f} km")
         print(f"Each grid cell represents {self.km_per_cell:.2f} km "
               f"({self.area_per_cell_sqmiles:.2f} sq miles)")
@@ -65,7 +67,8 @@ class TerrainGenerator:
         Returns:
             2D numpy array representing the heightmap
         """
-        print(f"Generating simplex noise heightmap of size {self.size}x{self.size}...")
+        print(f"Generating simplex noise heightmap "
+              f"of size {self.size}x{self.size}...")
 
         heightmap = np.zeros((self.size, self.size))
         noise_gen = OpenSimplex(seed=self.seed)
@@ -110,7 +113,8 @@ class TerrainGenerator:
             Eroded heightmap as a 2D numpy array
         """
         if self.heightmap is None:
-            raise ValueError("Heightmap must be generated before applying erosion")
+            raise ValueError(f"Heightmap must be generated "
+                             f"before applying erosion")
 
         print(f"Applying hydraulic erosion with {iterations} iterations...")
 
