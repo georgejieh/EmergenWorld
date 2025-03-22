@@ -113,8 +113,8 @@ class TerrainGenerator:
             Eroded heightmap as a 2D numpy array
         """
         if self.heightmap is None:
-            raise ValueError(f"Heightmap must be generated "
-                             f"before applying erosion")
+            raise ValueError("Heightmap must be generated "
+                             "before applying erosion")
 
         print(f"Applying hydraulic erosion with {iterations} iterations...")
 
@@ -171,8 +171,8 @@ class TerrainGenerator:
             Tuple of (updated heightmap, water mask)
         """
         if self.heightmap is None:
-            raise ValueError(f"Heightmap must be generated "
-                             f"before creating water bodies")
+            raise ValueError("Heightmap must be generated "
+                             "before creating water bodies")
 
         print(f"Generating water bodies with {water_coverage:.0%} "
               f"water coverage (Earth-like)...")
@@ -203,14 +203,17 @@ class TerrainGenerator:
 
         Args:
             mountain_scale: Scale factor for mountain height
-            peak_threshold: Threshold for mountain peaks (lower = more mountains)
-            epic_factor: Multiplier for mountain epicness (higher = more dramatic)
+            peak_threshold: Threshold for mountain peaks
+                            (lower = more mountains)
+            epic_factor: Multiplier for mountain epicness
+                         (higher = more dramatic)
 
         Returns:
             Updated heightmap with epic mountain ranges
         """
         if self.heightmap is None:
-            raise ValueError("Heightmap must be generated before adding mountains")
+            raise ValueError("Heightmap must be generated "
+                             "before adding mountains")
 
         print(f"Adding EPIC fantasy mountain ranges (epicness factor: {epic_factor:.1f})...")
 
@@ -229,7 +232,8 @@ class TerrainGenerator:
                 frequency = 1.0
 
                 for _ in range(3):  # Fewer octaves for mountain mask
-                    value += mountain_noise.noise2(nx * frequency, ny * frequency) * amplitude
+                    value += mountain_noise.noise2(nx * frequency,
+                                                   ny * frequency) * amplitude
                     amplitude *= 0.6  # Different persistence for mountain mask
                     frequency *= 2.5  # Different lacunarity for mountain mask
 
@@ -243,7 +247,8 @@ class TerrainGenerator:
         mountain_terrain = self.heightmap.copy()
         mountain_areas = mountain_mask > peak_threshold
 
-        # For epic fantasy mountains: sharper peaks, more dramatic height changes
+        # For epic fantasy mountains: sharper peaks,
+        # more dramatic height changes
         # First, apply basic mountain height increase
         mountain_terrain[mountain_areas] += (
             mountain_scale * (mountain_mask[mountain_areas] - peak_threshold))
