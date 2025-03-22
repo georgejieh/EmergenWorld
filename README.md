@@ -29,7 +29,7 @@ When the simulation has run for thousands or millions of virtual years, users ca
 
 ## 📖 The Ancient Codex of Aethyria
 
-![Lumanite Planetary Core](images/lore_image.png)
+![Lumanite Planetary Core](images/lore_image.jpeg)
 
 > *From the Archives of the Grand Academy of Aethyria, Volume III of the Primordial Histories*
 > 

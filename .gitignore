@@ -41,10 +41,6 @@ Thumbs.db
 # Project specific
 *.npy
 *.npz
-*.png
-*.jpg
-*.jpeg
-*.svg
 *.pdf
 logs/
 data/
