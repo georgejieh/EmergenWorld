@@ -57,8 +57,9 @@ def demonstrate_day_cycle(planet, steps=24):
 
         return day_night_img, solar_img
 
-    # Create the animation
-    FuncAnimation(fig, update, frames=steps, blit=False, repeat=True)
+    # Create the animation - animation variable needs to be kept
+    # even if not used, to prevent garbage collection
+    ani = FuncAnimation(fig, update, frames=steps, blit=False, repeat=True)
 
     plt.suptitle("One Day Cycle Animation", fontsize=16)
     plt.show()
@@ -153,8 +154,9 @@ def demonstrate_seasonal_cycle(planet, steps=12):
 
         return temp_img, day_img
 
-    # Create the animation
-    FuncAnimation(fig, update, frames=steps, blit=False, repeat=True)
+    # Create the animation - animation variable needs to be kept
+    # even if not used, to prevent garbage collection
+    ani = FuncAnimation(fig, update, frames=steps, blit=False, repeat=True)
 
     plt.suptitle("Seasonal Cycle Throughout the Year", fontsize=16)
     plt.tight_layout()
