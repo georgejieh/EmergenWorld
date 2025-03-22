@@ -7,7 +7,7 @@ and solar radiation patterns across the world.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Tuple, List
+from typing import Tuple
 import ephem  # For astronomical calculations
 from datetime import datetime, timedelta
 
@@ -15,8 +15,9 @@ from datetime import datetime, timedelta
 class PlanetarySystem:
     """Simulates planetary systems for the EmergenWorld simulation.
 
-    Models planetary characteristics including orbital properties, day/night cycles,
-    seasonal variations, and solar radiation patterns.
+    Models planetary characteristics including orbital properties,
+    day/night cycles, seasonal variations, and
+    solar radiation patterns.
     """
 
     def __init__(
@@ -56,7 +57,8 @@ class PlanetarySystem:
         self.earth_scale = earth_scale
 
         # Derived planetary properties
-        self.planet_radius_km = 6371.0 * np.sqrt(earth_scale)  # Earth radius × scale
+        # Earth radius × scale
+        self.planet_radius_km = 6371.0 * np.sqrt(earth_scale)
         self.planet_circumference_km = 2 * np.pi * self.planet_radius_km
         self.km_per_cell = self.planet_circumference_km / world_size
 
@@ -73,8 +75,12 @@ class PlanetarySystem:
         # Update the initial state
         self.update_sun_position()
 
-        print(f"Initialized planetary system with {axial_tilt_degrees}° axial tilt")
-        print(f"Year length: {year_length_days} days, Day length: {day_length_hours} hours")
+        print(
+              f"Initialized planetary system with {axial_tilt_degrees}° axial tilt"
+             )
+        print(
+              f"Year length: {year_length_days} days, Day length: {day_length_hours} hours"
+             )
         msg = f"Planet radius: {self.planet_radius_km:.1f} km, "
         msg += f"Cell size: {self.km_per_cell:.1f} km"
         print(msg)
@@ -113,8 +119,10 @@ class PlanetarySystem:
         hour_fraction = self.current_hour / self.day_length_hours
 
         # Calculate the julian date for ephem
-        # This is simplified - we're just using a base date and adding our simulation time
-        days_since_epoch = self.current_day + (hour_fraction * self.day_length_hours / 24.0)
+        # This is simplified - we're just using a base date
+        # and adding our simulation time
+        days_since_epoch = self.current_day + (hour_fraction 
+                                               * self.day_length_hours / 24.0)
         self.observer.date = self.epoch + timedelta(days=days_since_epoch)
 
         # Update the sun's position
