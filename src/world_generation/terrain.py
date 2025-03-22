@@ -576,7 +576,8 @@ class TerrainGenerator:
             Tuple of (combined water mask, individual water feature masks)
         """
         # Generate oceans and seas
-        _, ocean_mask = self.generate_water_bodies(water_coverage=ocean_coverage)
+        (_, ocean_mask) = self.generate_water_bodies(
+                                                     water_coverage=ocean_coverage)
 
         # Generate rivers
         river_mask = self.add_rivers(river_count=river_count, min_length=20)
@@ -597,8 +598,10 @@ class TerrainGenerator:
 
         print("\nWater System Statistics:")
         print(f"  Ocean coverage: {np.sum(ocean_mask) / ocean_mask.size:.2%}")
-        print(f"  River cells: {np.sum(river_mask)} ({np.sum(river_mask) / river_mask.size:.2%})")
-        print(f"  Lake cells: {np.sum(lake_mask)} ({np.sum(lake_mask) / lake_mask.size:.2%})")
+        print(f"  River cells: {np.sum(river_mask)} "
+              f"({np.sum(river_mask) / river_mask.size:.2%})")
+        print(f"  Lake cells: {np.sum(lake_mask)} "
+              f"({np.sum(lake_mask) / lake_mask.size:.2%})")
         print(f"  Total water coverage: {water_percentage:.2%}")
 
         # Return the combined mask and individual feature masks
@@ -631,9 +634,12 @@ class TerrainGenerator:
             terrain_vis = self.heightmap.copy()
 
             # More dramatic color scheme for fantasy terrain
-            # Deep blues for water, vibrant terrain colors for land
-            terrain_colors = plt.cm.gist_earth(terrain_vis)  # More vibrant terrain
-            water_colors = plt.cm.ocean(terrain_vis * 0.8)  # Deep blues
+            # Deep blues for water,
+            # vibrant terrain colors for land
+            # More vibrant terrain
+            terrain_colors = plt.cm.gist_earth(terrain_vis)
+            # Deep blues
+            water_colors = plt.cm.ocean(terrain_vis * 0.8)
 
             # Combine water and terrain colors using the mask
             for i in range(water_mask.shape[0]):
