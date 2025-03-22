@@ -656,7 +656,7 @@ class TerrainGenerator:
         # Show scale information
         scale_text = f"World Scale: {self.earth_scale:.2%} of Earth\n"
         scale_text += f"Grid Cell: {self.km_per_cell:.1f} km × "
-                      f"{self.km_per_cell:.1f} km\n"
+        scale_text += f"{self.km_per_cell:.1f} km\n"
         scale_text += f"Cell Area: {self.area_per_cell_sqmiles:.1f} sq miles"
 
         # Place scale info in the upper left
