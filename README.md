@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![EmergenWorld Banner](https://via.placeholder.com/800x200/4CAF50/FFFFFF?text=EmergenWorld)
+![EmergenWorld Banner](images/project_banner.jpeg)
 
 [![Project Status: Early Development](https://img.shields.io/badge/Status-Early%20Development-yellow)](https://github.com/georgejieh/EmergenWorld)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -26,12 +26,6 @@ EmergenWorld simulates an entire fantasy planet from the ground up:
 5. Generating authentic history and lore via large language models
 
 When the simulation has run for thousands or millions of virtual years, users can enter this fully realized world, interacting with civilizations that evolved organically and completing quests that emerge from the needs and desires of its inhabitants.
-
-<div align="center">
-
-![Maslow's Hierarchy of Needs](https://via.placeholder.com/500x300/9C27B0/FFFFFF?text=Maslow%27s+Hierarchy+Simulation)
-
-</div>
 
 ## ✨ Features
 
