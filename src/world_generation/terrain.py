@@ -125,8 +125,8 @@ class TerrainGenerator:
             # Random water drops
             num_drops = int(self.size * self.size * drop_rate)
             for _ in range(num_drops):
-                x, y = np.random.randint(1, self.size - 1),
-                       np.random.randint(1, self.size - 1)
+                x, y = (np.random.randint(1, self.size - 1),
+                        np.random.randint(1, self.size - 1))
 
                 # Find steepest descent
                 current_height = eroded_map[y, x]
