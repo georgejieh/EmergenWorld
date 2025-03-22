@@ -348,13 +348,15 @@ class TerrainGenerator:
 
                         ny, nx = y + dy, x + dx
                         if 0 <= ny < self.size and 0 <= nx < self.size:
-                            # Weight by elevation difference (steeper = more likely)
+                            # Weight by elevation difference
+                            # (steeper = more likely)
                             # Also make straight-ish flow more likely
                             if len(river_path) > 1:
                                 prev_y, prev_x = river_path[-2]
                                 # Direction from previous to current
                                 flow_dy, flow_dx = y - prev_y, x - prev_x
-                                # Encourage continuing in roughly the same direction
+                                # Encourage continuing in roughly
+                                # the same direction
                                 direction_weight = 1.0
                                 # Dot product > 0 means similar direction
                                 if dy * flow_dy + dx * flow_dx > 0:
@@ -366,13 +368,15 @@ class TerrainGenerator:
                                 direction_weight = 1.0
 
                             # Add randomness for meandering
-                            meander = 1.0 + meander_factor * (np.random.random() - 0.5)
+                            meander = (1.0 + meander_factor *
+                                       (np.random.random() - 0.5))
 
                             # Calculate the weighted score - lower is better (downhill)
                             # We're looking for cells that are lower than the current one
                             if self.heightmap[ny, nx] < self.heightmap[y, x]:
                                 # If it's a downward slope, compute how steep
-                                height_diff = self.heightmap[y, x] - self.heightmap[ny, nx]
+                                height_diff = (self.heightmap[y, x] -
+                                               self.heightmap[ny, nx])
                                 score = 1.0 - height_diff  # Lower height diff = higher score
                                 # Apply direction and meander weights
                                 score /= (direction_weight * meander)
