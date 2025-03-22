@@ -7,14 +7,14 @@ erosion, rivers, lakes, and oceans.
 
 import sys
 import os
+import argparse
 import numpy as np
-import matplotlib.pyplot as plt
 
-# Add the root directory to the Python path
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Add the root directory to the Python path first
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, root_dir)
 
-# Import from the world_generation package
+# Now we can import TerrainGenerator
 from src.world_generation import TerrainGenerator
 
 
@@ -36,7 +36,7 @@ def generate_basic_terrain(size=256, seed=42, scale=150.0, show=True):
     generator = TerrainGenerator(size=size, seed=seed, earth_scale=0.0083)
     
     # Generate basic heightmap
-    heightmap = generator.generate_heightmap(scale=scale)
+    generator.generate_heightmap(scale=scale)
     
     if show:
         # Visualize the heightmap
@@ -59,7 +59,7 @@ def apply_terrain_erosion(generator, iterations=30, show=True):
     print("\n=== Applying Terrain Erosion ===")
     
     # Apply hydraulic erosion
-    eroded = generator.apply_erosion(iterations=iterations)
+    generator.apply_erosion(iterations=iterations)
     
     if show:
         # Visualize the eroded terrain
@@ -68,7 +68,7 @@ def apply_terrain_erosion(generator, iterations=30, show=True):
     return generator
 
 
-def add_fantasy_mountains(generator, mountain_scale=1.2, peak_threshold=0.6, 
+def add_fantasy_mountains(generator, mountain_scale=1.2, peak_threshold=0.6,
                           epic_factor=2.5, show=True):
     """Add epic fantasy-style mountains to the terrain.
     
@@ -86,7 +86,7 @@ def add_fantasy_mountains(generator, mountain_scale=1.2, peak_threshold=0.6,
     
     # Add epic mountains for fantasy world
     generator.add_mountains(
-        mountain_scale=mountain_scale, 
+        mountain_scale=mountain_scale,
         peak_threshold=peak_threshold,
         epic_factor=epic_factor
     )
@@ -98,7 +98,7 @@ def add_fantasy_mountains(generator, mountain_scale=1.2, peak_threshold=0.6,
     return generator
 
 
-def generate_water_system(generator, ocean_coverage=0.65, river_count=25, 
+def generate_water_system(generator, ocean_coverage=0.65, river_count=25,
                           lake_count=15, show=True):
     """Generate a complete water system including oceans, rivers, and lakes.
     
@@ -155,7 +155,10 @@ def display_world_statistics(generator, water_mask):
     print(f"Water cells: {np.sum(water_mask > 0)}")
     print(f"Land percentage: {(total_land_cells / water_mask.size):.2%}")
     print(f"Water percentage: {(np.sum(water_mask > 0) / water_mask.size):.2%}")
-    print(f"Total land area: {total_land_area_sqkm:.0f} sq km ({total_land_area_sqmiles:.0f} sq miles)")
+    
+    # We need to break this line to stay under 80 chars
+    print(f"Total land area: {total_land_area_sqkm:.0f} sq km "
+          f"({total_land_area_sqmiles:.0f} sq miles)")
     
     # Calculate population estimates
     density_per_sqmile = 10  # Fantasy population density
@@ -187,9 +190,9 @@ def generate_complete_fantasy_world(size=256, seed=42, show_steps=True):
     
     # Generate water systems
     generator, water_mask, water_systems = generate_water_system(
-        generator, 
-        ocean_coverage=0.65, 
-        river_count=25, 
+        generator,
+        ocean_coverage=0.65,
+        river_count=25,
         lake_count=15,
         show=show_steps
     )
@@ -206,7 +209,6 @@ def generate_complete_fantasy_world(size=256, seed=42, show_steps=True):
 def main():
     """Main function to demonstrate terrain generation."""
     # Parse command line arguments (if any)
-    import argparse
     parser = argparse.ArgumentParser(description="Generate a fantasy terrain.")
     parser.add_argument("--size", type=int, default=256, help="Size of the terrain grid")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
@@ -214,7 +216,7 @@ def main():
     args = parser.parse_args()
     
     # Generate a complete fantasy world
-    generator, water_mask, water_systems = generate_complete_fantasy_world(
+    generator, water_mask, _ = generate_complete_fantasy_world(
         size=args.size,
         seed=args.seed,
         show_steps=not args.quick
