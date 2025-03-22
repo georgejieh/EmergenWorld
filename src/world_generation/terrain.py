@@ -1,7 +1,8 @@
 """Terrain generation module for EmergenWorld.
 
-This module handles the creation of realistic terrain using various noise algorithms
-and provides methods for terrain manipulation and feature generation.
+This module handles the creation of realistic terrain
+using various noise algorithms and provides methods for
+terrain manipulation and feature generation.
 """
 
 import numpy as np
@@ -17,7 +18,7 @@ class TerrainGenerator:
     valleys, and plateaus.
     """
 
-    def __init__(self, size: int = 1024, octaves: int = 6, 
+    def __init__(self, size: int = 1024, octaves: int = 6,
                 persistence: float = 0.5, lacunarity: float = 2.0,
                 seed: Optional[int] = None, earth_scale: float = 0.0083):
         """Initialize the TerrainGenerator with configurable parameters.
@@ -94,7 +95,7 @@ class TerrainGenerator:
         self.heightmap = heightmap
         return heightmap
 
-    def apply_erosion(self, iterations: int = 50, drop_rate: float = 0.05, 
+    def apply_erosion(self, iterations: int = 50, drop_rate: float = 0.05,
                      erosion_strength: float = 0.3) -> np.ndarray:
         """Apply hydraulic erosion to the heightmap for more realistic terrain.
 
@@ -149,7 +150,7 @@ class TerrainGenerator:
 
         self.heightmap = eroded_map
         return eroded_map
-    
+
     def generate_water_bodies(self, water_coverage: float = 0.71) -> Tuple[np.ndarray, np.ndarray]:
         """Generate water bodies (oceans, lakes) based on the heightmap.
         
@@ -184,7 +185,7 @@ class TerrainGenerator:
 
         return self.heightmap, water_mask
 
-    def add_mountains(self, mountain_scale: float = 1.2, 
+    def add_mountains(self, mountain_scale: float = 1.2,
                      peak_threshold: float = 0.6,
                      epic_factor: float = 2.0) -> np.ndarray:
         """Add epic fantasy-style mountain ranges to the terrain.
@@ -264,8 +265,8 @@ class TerrainGenerator:
         self.heightmap = mountain_terrain
         return mountain_terrain
 
-    def add_rivers(self, 
-                  river_count: int = 20, 
+    def add_rivers(self,
+                  river_count: int = 20,
                   min_length: int = 20,
                   meander_factor: float = 0.3) -> np.ndarray:
         """Add rivers flowing from high elevation to the sea.
@@ -369,7 +370,7 @@ class TerrainGenerator:
                     break
 
                 # Check if we've reached the edge of the map
-                if (next_x <= 1 or next_x >= self.size - 2 or 
+                if (next_x <= 1 or next_x >= self.size - 2 or
                         next_y <= 1 or next_y >= self.size - 2):
                     # Stop when we get very close to the edge
                     break
@@ -394,21 +395,21 @@ class TerrainGenerator:
                     # Add some width to larger rivers (thicker near the end)
                     river_width = 1 + int(len(river_path) / 50)  # Scale width with length
                     if river_width > 1:
-                        for wy in range(max(0, py-river_width//2), 
+                        for wy in range(max(0, py-river_width//2),
                                         min(self.size, py+(river_width+1)//2)):
-                            for wx in range(max(0, px-river_width//2), 
+                            for wx in range(max(0, px-river_width//2),
                                            min(self.size, px+(river_width+1)//2)):
                                 # Circular brush
-                                if ((wy - py)**2 + (wx - px)**2 <= 
+                                if ((wy - py)**2 + (wx - px)**2 <=
                                         (river_width//2)**2):
                                     river_mask[wy, wx] = 1
 
         print(f"Successfully created {rivers_created} rivers")
         return river_mask
 
-    def add_lakes(self, 
-                 count: int = 15, 
-                 min_size: int = 10, 
+    def add_lakes(self,
+                 count: int = 15,
+                 min_size: int = 10,
                  max_size: int = 100,
                  ocean_mask: Optional[np.ndarray] = None) -> np.ndarray:
         """Add inland lakes to depressions in the terrain.
@@ -513,7 +514,7 @@ class TerrainGenerator:
             if len(lake_cells) >= min_size:
                 for ly, lx in lake_cells:
                     lake_mask[ly, lx] = 1
-            
+
                 lakes_created += 1
 
                 # Stop if we've created enough lakes
@@ -543,7 +544,7 @@ class TerrainGenerator:
         river_mask = self.add_rivers(river_count=river_count, min_length=20)
 
         # Generate lakes, making sure they don't overlap with oceans
-        lake_mask = self.add_lakes(count=lake_count, min_size=10, max_size=100, 
+        lake_mask = self.add_lakes(count=lake_count, min_size=10, max_size=100,
                                   ocean_mask=ocean_mask)
 
         # Combine all water features
@@ -571,7 +572,7 @@ class TerrainGenerator:
 
         return combined_water_mask, water_systems
 
-    def visualize(self, water_mask: Optional[np.ndarray] = None, 
+    def visualize(self, water_mask: Optional[np.ndarray] = None,
                  title: str = "Terrain Heightmap",
                  show_grid: bool = False):
         """Visualize the current heightmap.
@@ -612,7 +613,7 @@ class TerrainGenerator:
         scale_text += f"Cell Area: {self.area_per_cell_sqmiles:.1f} sq miles"
 
         # Place scale info in the upper left
-        plt.annotate(scale_text, (0.02, 0.98), xycoords="figure fraction", 
+        plt.annotate(scale_text, (0.02, 0.98), xycoords="figure fraction",
                     verticalalignment="top", color="black",
                     bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8))
 
@@ -625,11 +626,10 @@ class TerrainGenerator:
                 plt.axvline(i, color="white", alpha=0.3, linestyle=":")
 
             # Label a few key points
-            grid_km = grid_step * self.km_per_cell
             for i in range(0, self.size + 1, grid_step):
-                plt.text(i, -5, f"{int(i * self.km_per_cell)} km", 
+                plt.text(i, -5, f"{int(i * self.km_per_cell)} km",
                         color="black", ha="center", fontsize=8)
-                plt.text(-5, i, f"{int(i * self.km_per_cell)} km", 
+                plt.text(-5, i, f"{int(i * self.km_per_cell)} km",
                         color="black", va="center", fontsize=8)
 
         plt.colorbar(label="Elevation")
@@ -638,7 +638,7 @@ class TerrainGenerator:
         plt.tight_layout()
         plt.show()
 
-    def visualize_water_system(self, water_systems: Dict[str, np.ndarray], 
+    def visualize_water_system(self, water_systems: Dict[str, np.ndarray],
                               title: str = "Complete Water System"):
         """Visualize water systems with different colors for each type.
 
@@ -691,11 +691,11 @@ class TerrainGenerator:
 
         # Add a legend
         legend_elements = [
-            plt.Line2D([0], [0], marker="s", color="w", 
+            plt.Line2D([0], [0], marker="s", color="w",
                       markerfacecolor=[0.0, 0.1, 0.5, 1.0], markersize=10, label="Ocean"),
-            plt.Line2D([0], [0], marker="s", color="w", 
+            plt.Line2D([0], [0], marker="s", color="w",
                       markerfacecolor=[0.2, 0.4, 0.8, 1.0], markersize=10, label="Lakes"),
-            plt.Line2D([0], [0], marker="s", color="w", 
+            plt.Line2D([0], [0], marker="s", color="w",
                       markerfacecolor=[0.0, 0.5, 1.0, 1.0], markersize=10, label="Rivers")
         ]
         plt.legend(handles=legend_elements, loc="upper right")
@@ -705,7 +705,7 @@ class TerrainGenerator:
         scale_text += f"Grid Cell: {self.km_per_cell:.1f} km × {self.km_per_cell:.1f} km\n"
         scale_text += f"Cell Area: {self.area_per_cell_sqmiles:.1f} sq miles"
 
-        plt.annotate(scale_text, (0.02, 0.98), xycoords="figure fraction", 
+        plt.annotate(scale_text, (0.02, 0.98), xycoords="figure fraction",
                     verticalalignment="top", color="black",
                     bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8))
 
