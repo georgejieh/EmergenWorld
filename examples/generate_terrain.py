@@ -5,8 +5,6 @@ This script shows how to create and visualize a fantasy terrain with mountains,
 erosion, rivers, lakes, and oceans.
 """
 
-import sys
-import os
 import argparse
 import numpy as np
 from src.world_generation import TerrainGenerator
@@ -118,14 +116,14 @@ def generate_water_system(generator, ocean_coverage=0.65, river_count=25,
     if show:
         # Visualize the water systems
         generator.visualize_water_system(
-            water_systems, 
+            water_systems,
             title="Fantasy World Water Systems"
         )
 
         # Visualize the complete world
         generator.visualize(
-            water_mask=water_mask, 
-            title="Complete Fantasy World", 
+            water_mask=water_mask,
+            title="Complete Fantasy World",
             show_grid=True
         )
 
@@ -181,13 +179,25 @@ def generate_complete_fantasy_world(size=256, seed=42, show_steps=True):
     print("\n=== Generating Complete Fantasy World ===")
 
     # Generate basic terrain
-    generator = generate_basic_terrain(size=size, seed=seed, show=show_steps)
+    generator = generate_basic_terrain(
+        size=size,
+        seed=seed,
+        show=show_steps
+    )
 
     # Apply erosion
-    generator = apply_terrain_erosion(generator, iterations=30, show=show_steps)
+    generator = apply_terrain_erosion(
+        generator,
+        iterations=30,
+        show=show_steps
+    )
 
     # Add fantasy mountains
-    generator = add_fantasy_mountains(generator, epic_factor=2.5, show=show_steps)
+    generator = add_fantasy_mountains(
+        generator,
+        epic_factor=2.5,
+        show=show_steps
+    )
 
     # Generate water systems
     generator, water_mask, water_systems = generate_water_system(
