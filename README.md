@@ -77,7 +77,7 @@ When the simulation has run for thousands or millions of virtual years, users ca
 
 ### Phase 1: World Generation 🏔️
 - [x] Project setup and initial planning
-- [ ] Terrain generation using noise algorithms
+- [x] Terrain generation using noise algorithms
 - [ ] Planetary systems simulation
 - [ ] Climate and biome generation
 
@@ -151,8 +151,9 @@ When the simulation has run for thousands or millions of virtual years, users ca
 
 ### Core Systems
 - **NumPy/SciPy**: Mathematical operations and physics calculations
-- **Noise libraries**: Procedural terrain generation
+- **OpenSimplex**: Procedural terrain generation
 - **Mesa**: Agent-based modeling framework
+- **Ephem**: Astronomical calculations for planetary systems
 
 ### Evolution and Genetics
 - **DEAP**: Evolutionary algorithm implementation
@@ -193,17 +194,65 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Install the package in development mode
+pip install -e .
 ```
 
-### Running Initial Components
+### Project Structure
 
-As the project is in early development, most components are still being implemented. Check the `examples/` directory for demonstration scripts as they become available.
+```
+EmergenWorld/
+├── src/
+│   ├── world_generation/      # World generation modules
+│   │   ├── __init__.py        # Package initialization
+│   │   ├── terrain.py         # Terrain generation
+│   │   └── planetary.py       # Planetary systems simulation
+│   └── utils/                 # Utility modules
+├── examples/                  # Example scripts
+│   ├── generate_terrain.py    # Terrain generation example
+│   └── simulate_planet.py     # Planetary simulation example
+├── tests/                     # Unit tests
+└── setup.py                   # Package installation file
+```
+
+### Running Examples
+
+The `examples/` directory contains standalone scripts that demonstrate different components of the simulation:
+
+```bash
+# Generate terrain
+python examples/generate_terrain.py
+
+# Simulate planetary system
+python examples/simulate_planet.py
+
+# Run with custom parameters
+python examples/generate_terrain.py --size 512 --seed 42 --quick
+```
+
+### Troubleshooting Imports
+
+If you encounter import errors, try one of these approaches:
+
+1. Make sure you've installed the package in development mode:
+   ```bash
+   pip install -e .
+   ```
+
+2. If that doesn't work, you can modify your example scripts to add the project root to the Python path:
+   ```python
+   import sys
+   import os
+   # Add project root to Python path
+   sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+   ```
 
 ## 🤝 Contributing
 
 Contributions are very welcome! This project is ambitious in scope and can benefit from diverse expertise.
 
-This project welcomes enthusiastic contributors who share our vision of creating an emergent fantasy world simulation. If you find this concept intriguing and would like to help bring it to life, here's how you can contribute:
+If you find this concept intriguing and would like to help bring it to life, here's how you can contribute:
 
 1. Check the [Issues](https://github.com/georgejieh/EmergenWorld/issues) tab for tasks or propose your own enhancement
 2. Fork the repository
@@ -211,6 +260,12 @@ This project welcomes enthusiastic contributors who share our vision of creating
 4. Commit your changes (`git commit -m 'Add some amazing feature'`)
 5. Push to the branch (`git push origin feature/amazing-feature`)
 6. Open a Pull Request
+7. Ensure all conversations are resolved and requirements are met before requesting a review
+8. Wait for approval and merge (the main branch is protected and requires an approved PR)
+
+### Code Style
+
+This project follows the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html). Please ensure your contributions adhere to this style for consistency.
 
 Please maintain code quality and add tests for new functionality when possible.
 
