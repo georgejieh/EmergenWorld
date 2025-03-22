@@ -47,7 +47,7 @@ def demonstrate_day_cycle(planet, steps=24):
     plt.tight_layout()
 
     # Function to update the plots for each frame
-    def update(_frame):  # Using _frame to indicate unused parameter
+    def update(dummy_frame):  # Parameter required by FuncAnimation but not used
         # Advance time by one hour
         hours_per_step = planet.day_length_hours / steps
         planet.advance_time(hours=hours_per_step)
@@ -143,9 +143,9 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     ax2.grid(linestyle=":", color="gray", alpha=0.5)
 
     # Function to update the plots for each frame
-    def update(_frame):  # Using _frame to indicate unused parameter
+    def update(dummy_frame):  # Parameter required by FuncAnimation but not used
         # Set day to evenly spaced points throughout the year
-        day = int(_frame * (planet.year_length_days / steps))
+        day = int(dummy_frame * (planet.year_length_days / steps))
         planet.current_day = day
         planet._update_sun_position()
 
