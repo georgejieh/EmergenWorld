@@ -371,13 +371,16 @@ class TerrainGenerator:
                             meander = (1.0 + meander_factor *
                                        (np.random.random() - 0.5))
 
-                            # Calculate the weighted score - lower is better (downhill)
-                            # We're looking for cells that are lower than the current one
+                            # Calculate the weighted score
+                            # lower is better (downhill)
+                            # We're looking for cells that
+                            # are lower than the current one
                             if self.heightmap[ny, nx] < self.heightmap[y, x]:
                                 # If it's a downward slope, compute how steep
                                 height_diff = (self.heightmap[y, x] -
                                                self.heightmap[ny, nx])
-                                score = 1.0 - height_diff  # Lower height diff = higher score
+                                # Lower height diff = higher score
+                                score = 1.0 - height_diff
                                 # Apply direction and meander weights
                                 score /= (direction_weight * meander)
                                 neighbors.append((ny, nx, score))
@@ -386,7 +389,8 @@ class TerrainGenerator:
                     # No downhill neighbors, end the river
                     break
 
-                # Choose the lowest neighbor, with some randomness for meandering
+                # Choose the lowest neighbor,
+                # with some randomness for meandering
                 neighbors.sort(key=lambda n: n[2])  # Sort by score
                 next_y, next_x, _ = neighbors[0]  # Choose the best neighbor
 
@@ -419,7 +423,8 @@ class TerrainGenerator:
                 for py, px in river_path:
                     river_mask[py, px] = 1
 
-                    # Add some width to larger rivers (thicker near the end)
+                    # Add some width to larger rivers
+                    # (thicker near the end)
                     river_width = 1 + int(len(river_path) / 50)  # Scale width with length
                     if river_width > 1:
                         for wy in range(max(0, py-river_width//2),
