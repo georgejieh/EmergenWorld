@@ -20,6 +20,7 @@ Mesa==3.1.4
 narwhals==1.31.0
 nest-asyncio==1.6.0
 numpy==2.2.4
+opensimplex==0.4.5.1
 packaging==24.2
 pandas==2.2.3
 parso==0.8.4
