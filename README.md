@@ -267,6 +267,14 @@ If you find this concept intriguing and would like to help bring it to life, her
 
 This project follows the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html). Please ensure your contributions adhere to this style for consistency.
 
+We use Pylint with a configuration based on Google's style guide to verify code quality. Before submitting a PR, please run:
+
+```bash
+pylint src/ examples/ tests/
+```
+
+The repository includes Pylint checks as part of the automated GitHub Actions workflow for all pull requests.
+
 Please maintain code quality and add tests for new functionality when possible.
 
 ## 📝 License
