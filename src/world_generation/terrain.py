@@ -49,8 +49,8 @@ class TerrainGenerator:
         # Calculate km per grid cell
         self.km_per_cell = self.scaled_circumference_km / size
         self.area_per_cell_sqkm = self.km_per_cell ** 2
-        self.area_per_cell_sqmiles = self.area_per_cell_sqkm
-                                     * 0.386102  # Convert to sq miles
+        self.area_per_cell_sqmiles = (self.area_per_cell_sqkm *
+                                      0.386102)  # Convert to sq miles
 
         print(f"Initialized terrain generator "
               f"for world at {earth_scale:.4%} of Earth's size")
