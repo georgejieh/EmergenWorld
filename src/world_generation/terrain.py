@@ -12,10 +12,11 @@ from typing import Tuple, Dict, Optional
 
 
 class TerrainGenerator:
-    """Generates and manipulates terrain heightmaps for the EmergenWorld simulation.
+    """Generates and manipulates terrain heightmaps
+       for the EmergenWorld simulation.
 
-    Uses noise algorithms to create realistic terrain features such as mountains,
-    valleys, and plateaus.
+    Uses noise algorithms to create realistic terrain
+    features such as mountains, valleys, and plateaus.
     """
 
     def __init__(self, size: int = 1024, octaves: int = 6,
@@ -29,7 +30,8 @@ class TerrainGenerator:
             persistence: Persistence value for noise generation
             lacunarity: Lacunarity value for noise generation
             seed: Random seed for reproducible terrain generation
-            earth_scale: Scale factor relative to Earth (default is 0.83% of Earth)
+            earth_scale: Scale factor relative
+                         to Earth (default is 0.83% of Earth)
         """
         self.size = size
         self.octaves = octaves
