@@ -576,8 +576,10 @@ class TerrainGenerator:
             Tuple of (combined water mask, individual water feature masks)
         """
         # Generate oceans and seas
-        (_, ocean_mask) = self.generate_water_bodies(
-                                                     water_coverage=ocean_coverage)
+        (
+         _,
+         ocean_mask
+        ) = self.generate_water_bodies(water_coverage=ocean_coverage)
 
         # Generate rivers
         river_mask = self.add_rivers(river_count=river_count, min_length=20)
@@ -653,13 +655,20 @@ class TerrainGenerator:
 
         # Show scale information
         scale_text = f"World Scale: {self.earth_scale:.2%} of Earth\n"
-        scale_text += f"Grid Cell: {self.km_per_cell:.1f} km × {self.km_per_cell:.1f} km\n"
+        scale_text += f"Grid Cell: {self.km_per_cell:.1f} km × "
+                      f"{self.km_per_cell:.1f} km\n"
         scale_text += f"Cell Area: {self.area_per_cell_sqmiles:.1f} sq miles"
 
         # Place scale info in the upper left
-        plt.annotate(scale_text, (0.02, 0.98), xycoords="figure fraction",
-                    verticalalignment="top", color="black",
-                    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8))
+        plt.annotate(scale_text,
+                     (0.02, 0.98),
+                     xycoords="figure fraction",
+                     verticalalignment="top",
+                     color="black",
+                     bbox=dict(boxstyle="round,pad=0.3",
+                               fc="white",
+                               ec="black",
+                               alpha=0.8))
 
         # If requested, add grid for scale reference
         if show_grid and self.size > 20:
@@ -736,11 +745,14 @@ class TerrainGenerator:
         # Add a legend
         legend_elements = [
             plt.Line2D([0], [0], marker="s", color="w",
-                      markerfacecolor=[0.0, 0.1, 0.5, 1.0], markersize=10, label="Ocean"),
+                      markerfacecolor=[0.0, 0.1, 0.5, 1.0],
+                      markersize=10, label="Ocean"),
             plt.Line2D([0], [0], marker="s", color="w",
-                      markerfacecolor=[0.2, 0.4, 0.8, 1.0], markersize=10, label="Lakes"),
+                      markerfacecolor=[0.2, 0.4, 0.8, 1.0],
+                      markersize=10, label="Lakes"),
             plt.Line2D([0], [0], marker="s", color="w",
-                      markerfacecolor=[0.0, 0.5, 1.0, 1.0], markersize=10, label="Rivers")
+                      markerfacecolor=[0.0, 0.5, 1.0, 1.0],
+                      markersize=10, label="Rivers")
         ]
         plt.legend(handles=legend_elements, loc="upper right")
 
