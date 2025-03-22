@@ -125,7 +125,8 @@ class TerrainGenerator:
             # Random water drops
             num_drops = int(self.size * self.size * drop_rate)
             for _ in range(num_drops):
-                x, y = np.random.randint(1, self.size - 1), np.random.randint(1, self.size - 1)
+                x, y = np.random.randint(1, self.size - 1),
+                       np.random.randint(1, self.size - 1)
 
                 # Find steepest descent
                 current_height = eroded_map[y, x]
@@ -146,7 +147,8 @@ class TerrainGenerator:
                 # Erode and deposit
                 if min_pos != (x, y):
                     # Remove soil from current position
-                    soil_removed = erosion_strength * (current_height - min_height)
+                    soil_removed = (erosion_strength *
+                                    (current_height - min_height))
                     eroded_map[y, x] -= soil_removed
 
                     # Deposit some at the lower position
@@ -157,7 +159,8 @@ class TerrainGenerator:
         self.heightmap = eroded_map
         return eroded_map
 
-    def generate_water_bodies(self, water_coverage: float = 0.71) -> Tuple[np.ndarray, np.ndarray]:
+    def generate_water_bodies(self, water_coverage: float = 0.71
+                             ) -> Tuple[np.ndarray, np.ndarray]:
         """Generate water bodies (oceans, lakes) based on the heightmap.
         
         Args:
@@ -168,9 +171,11 @@ class TerrainGenerator:
             Tuple of (updated heightmap, water mask)
         """
         if self.heightmap is None:
-            raise ValueError("Heightmap must be generated before creating water bodies")
+            raise ValueError(f"Heightmap must be generated "
+                             f"before creating water bodies")
 
-        print(f"Generating water bodies with {water_coverage:.0%} water coverage (Earth-like)...")
+        print(f"Generating water bodies with {water_coverage:.0%} "
+              f"water coverage (Earth-like)...")
 
         # Find sea level threshold that gives the desired water coverage
         # Sort heightmap values and find the threshold
