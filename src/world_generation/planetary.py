@@ -207,7 +207,8 @@ class PlanetarySystem:
                 # Compute the sun's position for this location
                 self.sun.compute(self.observer)
 
-                # Solar radiation is 0 at night, otherwise proportional to sin(altitude)
+                # Solar radiation is 0 at night,
+                # otherwise proportional to sin(altitude)
                 if float(self.sun.alt) <= 0:
                     self.solar_radiation[y, x] = 0.0
                 else:
@@ -219,7 +220,7 @@ class PlanetarySystem:
                         2 * np.pi * (self.current_day / self.year_length_days)
                     )
                     perihelion_angle = (
-                        2 * np.pi 
+                        2 * np.pi
                         * (self.perihelion_day / self.year_length_days)
                     )
                     angle_diff = (year_angle - perihelion_angle) % (2 * np.pi)
@@ -227,8 +228,8 @@ class PlanetarySystem:
                     # Distance factor due to eccentricity (1 - e*cos(angle))
                     distance_factor = 1 - self.eccentricity * np.cos(angle_diff)
 
-                    # Solar radiation is inversely proportional to square of distance
-                    # of the planet from its sun
+                    # Solar radiation is inversely proportional 
+                    # to square of distance of the planet from its sun
                     orbital_factor = 1 / (distance_factor ** 2)
 
                     self.solar_radiation[y, x] = radiation * orbital_factor
@@ -330,7 +331,8 @@ class PlanetarySystem:
         return seasonal_effect
 
     def get_day_length(self, latitude: float) -> float:
-        """Calculate day length in hours for a given latitude on the current day.
+        """Calculate day length in hours for a given
+           latitude on the current day.
 
         Args:
             latitude: Latitude in degrees (-90 to 90)
@@ -353,7 +355,9 @@ class PlanetarySystem:
 
             # Calculate time difference in hours
             time_diff = (
-                (sunset.datetime() - sunrise.datetime()).total_seconds() / 3600.0
+                (sunset.datetime()
+                 - sunrise.datetime()).total_seconds()
+                 / 3600.0
             )
 
             # Scale to match our custom day length
@@ -416,7 +420,8 @@ class PlanetarySystem:
 
         return img
 
-    def visualize_solar_radiation(self, ax=None, title: str = "Solar Radiation"):
+    def visualize_solar_radiation(self, ax=None, 
+                                  title: str = "Solar Radiation"):
         """Visualize the current solar radiation pattern.
 
         Args:
@@ -458,10 +463,12 @@ class PlanetarySystem:
         return img
 
     def visualize_day_length(self, latitudes=None):
-        """Visualize day length variation across the year for selected latitudes.
+        """Visualize day length variation across
+           the year for selected latitudes.
 
         Args:
-            latitudes: List of latitudes to plot, default is [0, 23.5, 45, 66.5, 90]
+            latitudes: List of latitudes to plot,
+                       default is [0, 23.5, 45, 66.5, 90]
         """
         if latitudes is None:
             latitudes = [0, 23.5, 45, 66.5, 90]
