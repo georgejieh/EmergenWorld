@@ -12,12 +12,10 @@ from matplotlib.animation import FuncAnimation
 # Import from the world_generation package
 from src.world_generation import PlanetarySystem
 
-# pylint: disable=protected-access
-
 
 def demonstrate_day_cycle(planet, steps=24):
     """Demonstrate a full day cycle with animated visualization.
-    
+
     Args:
         planet: PlanetarySystem instance
         steps: Number of steps for the animation
@@ -30,9 +28,9 @@ def demonstrate_day_cycle(planet, steps=24):
 
     # Reset to dawn
     planet.current_hour = 0
-    planet._update_sun_position()
-    planet._update_day_night_cycle()
-    planet._update_solar_radiation()
+    planet.update_sun_position()
+    planet.update_day_night_cycle()
+    planet.update_solar_radiation()
 
     # Create a figure with two subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
@@ -74,15 +72,15 @@ def demonstrate_day_cycle(planet, steps=24):
     # Restore original state
     planet.current_day = original_day
     planet.current_hour = original_hour
-    planet._update_sun_position()
-    planet._update_day_night_cycle()
-    planet._update_solar_radiation()
+    planet.update_sun_position()
+    planet.update_day_night_cycle()
+    planet.update_solar_radiation()
 
 
 def demonstrate_seasonal_cycle(planet, steps=12):
     """Demonstrate seasonal changes throughout a year
     with animated visualization.
-    
+
     Args:
         planet: PlanetarySystem instance
         steps: Number of steps for the animation
@@ -148,7 +146,7 @@ def demonstrate_seasonal_cycle(planet, steps=12):
         # Set day to evenly spaced points throughout the year
         day = int(frame * (planet.year_length_days / steps))
         planet.current_day = day
-        planet._update_sun_position()
+        planet.update_sun_position()
 
         # Create new seasonal maps
         temp_map, day_map = create_seasonal_maps()
@@ -178,9 +176,9 @@ def demonstrate_seasonal_cycle(planet, steps=12):
     # Restore original state
     planet.current_day = original_day
     planet.current_hour = original_hour
-    planet._update_sun_position()
-    planet._update_day_night_cycle()
-    planet._update_solar_radiation()
+    planet.update_sun_position()
+    planet.update_day_night_cycle()
+    planet.update_solar_radiation()
 
 
 def compare_planet_properties():
@@ -216,9 +214,7 @@ def compare_planet_properties():
     for planet in [earth_like, extreme_tilt, no_tilt]:
         planet.current_day = int(planet.year_length_days / 2)  # Mid-year
         planet.current_hour = planet.day_length_hours / 2      # Noon
-        planet._update_sun_position()
-        planet._update_day_night_cycle()
-        planet._update_solar_radiation()
+        planet.update_all()
 
     # Create a figure with three rows
     _, axes = plt.subplots(3, 3, figsize=(18, 12))

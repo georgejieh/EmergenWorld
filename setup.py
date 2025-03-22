@@ -9,7 +9,7 @@ setup(
     author="George Jieh",
     author_email="george.jieh@gmail.com",
     url="https://github.com/georgejieh/EmergenWorld",
-    packages=find_packages(include=['src', 'src.*']),
+    packages=find_packages(include=["src", "src.*"]),
     package_data={
         "": ["*.md", "*.txt"],
     },
