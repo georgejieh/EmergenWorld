@@ -228,7 +228,7 @@ class PlanetarySystem:
                     # Distance factor due to eccentricity (1 - e*cos(angle))
                     distance_factor = 1 - self.eccentricity * np.cos(angle_diff)
 
-                    # Solar radiation is inversely proportional 
+                    # Solar radiation is inversely proportional
                     # to square of distance of the planet from its sun
                     orbital_factor = 1 / (distance_factor ** 2)
 
@@ -420,7 +420,7 @@ class PlanetarySystem:
 
         return img
 
-    def visualize_solar_radiation(self, ax=None, 
+    def visualize_solar_radiation(self, ax=None,
                                   title: str = "Solar Radiation"):
         """Visualize the current solar radiation pattern.
 
