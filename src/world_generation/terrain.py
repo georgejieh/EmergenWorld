@@ -696,7 +696,8 @@ class TerrainGenerator:
         """Visualize water systems with different colors for each type.
 
         Args:
-            water_systems: Dictionary of water masks from generate_complete_water_system
+            water_systems: Dictionary of water masks
+                           from generate_complete_water_system
             title: Title for the plot
         """
         if self.heightmap is None:
@@ -758,12 +759,15 @@ class TerrainGenerator:
 
         # Show scale information
         scale_text = f"World Scale: {self.earth_scale:.2%} of Earth\n"
-        scale_text += f"Grid Cell: {self.km_per_cell:.1f} km × {self.km_per_cell:.1f} km\n"
+        scale_text += f"Grid Cell: {self.km_per_cell:.1f} km × "
+        scale_text += f"{self.km_per_cell:.1f} km\n"
         scale_text += f"Cell Area: {self.area_per_cell_sqmiles:.1f} sq miles"
 
         plt.annotate(scale_text, (0.02, 0.98), xycoords="figure fraction",
                     verticalalignment="top", color="black",
-                    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8))
+                    bbox=dict(boxstyle="round,pad=0.3",
+                              fc="white", ec="black",
+                              alpha=0.8))
 
         plt.title(title)
         plt.axis("off")
