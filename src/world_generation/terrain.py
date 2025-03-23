@@ -68,7 +68,7 @@ class TerrainGenerator:
             2D numpy array representing the heightmap
         """
         print(f"Generating simplex noise heightmap "
-              f"of size {self.size}x{self.size}...")
+            f"of size {self.size}x{self.size}...")
 
         heightmap = np.zeros((self.size, self.size))
         noise_gen = OpenSimplex(seed=self.seed)
@@ -96,6 +96,40 @@ class TerrainGenerator:
         min_val = np.min(heightmap)
         max_val = np.max(heightmap)
         heightmap = (heightmap - min_val) / (max_val - min_val)
+
+        # Apply non-linear transformation to create more land at moderate elevations
+        # This will compress the range between sea level and mountains
+        # while preserving the highest peaks
+
+        # Save original heightmap for reference
+        original_heightmap = heightmap.copy()
+
+        # First, define the sea level threshold (approximately where oceans will be)
+        sea_level = 0.3
+
+        # Apply different transformations to different height ranges
+        # Below sea level - keep mostly as is (oceans)
+        # Mid-range - expand this range to create more land at moderate elevations
+        # High peaks - preserve these for dramatic mountains
+
+        # Apply transformation
+        for y in range(self.size):
+            for x in range(self.size):
+                h = original_heightmap[y, x]
+
+                if h < sea_level:
+                    # Slight adjustment to ocean depths
+                    heightmap[y, x] = h * 0.9
+                elif h < 0.7:
+                    # Expand the middle range to create more moderate terrain
+                    # Map 0.3-0.7 to 0.27-0.6
+                    normalized_h = (h - sea_level) / (0.7 - sea_level)
+                    heightmap[y, x] = sea_level * 0.9 + normalized_h * 0.33
+                else:
+                    # Preserve high peaks (0.7-1.0) but compress slightly
+                    # Map 0.7-1.0 to 0.6-1.0 to maintain epic mountains
+                    normalized_h = (h - 0.7) / 0.3
+                    heightmap[y, x] = 0.6 + normalized_h * 0.4
 
         self.heightmap = heightmap
         return heightmap
@@ -563,12 +597,12 @@ class TerrainGenerator:
         return lake_mask
 
     def generate_complete_water_system(
-            self, ocean_coverage: float = 0.65, river_count: int = 25,
-            lake_count: int = 15) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
+        self, ocean_coverage: float = 0.55, river_count: int = 25,
+        lake_count: int = 15) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
         """Generate a complete water system with oceans, rivers, and lakes.
 
         Args:
-            ocean_coverage: Target ocean coverage (0.0-1.0)
+            ocean_coverage: Target ocean coverage (0.0-1.0) (reduced from 0.65 to 0.55)
             river_count: Number of major rivers to generate
             lake_count: Number of lakes to generate
 
@@ -577,8 +611,8 @@ class TerrainGenerator:
         """
         # Generate oceans and seas
         (
-         _,
-         ocean_mask
+        _,
+        ocean_mask
         ) = self.generate_water_bodies(water_coverage=ocean_coverage)
 
         # Generate rivers
@@ -601,9 +635,9 @@ class TerrainGenerator:
         print("\nWater System Statistics:")
         print(f"  Ocean coverage: {np.sum(ocean_mask) / ocean_mask.size:.2%}")
         print(f"  River cells: {np.sum(river_mask)} "
-              f"({np.sum(river_mask) / river_mask.size:.2%})")
+            f"({np.sum(river_mask) / river_mask.size:.2%})")
         print(f"  Lake cells: {np.sum(lake_mask)} "
-              f"({np.sum(lake_mask) / lake_mask.size:.2%})")
+            f"({np.sum(lake_mask) / lake_mask.size:.2%})")
         print(f"  Total water coverage: {water_percentage:.2%}")
 
         # Return the combined mask and individual feature masks

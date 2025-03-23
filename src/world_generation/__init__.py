@@ -7,5 +7,6 @@ climate simulation, and biome generation.
 
 from .terrain import TerrainGenerator
 from .planetary import PlanetarySystem
+from .climate import ClimateSystem
 
-__all__ = ['TerrainGenerator', 'PlanetarySystem']
+__all__ = ['TerrainGenerator', 'PlanetarySystem', 'ClimateSystem']
