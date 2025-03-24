@@ -222,20 +222,19 @@ class ClimateSystem:
         """Generate the base atmospheric pressure map using barometric formula and global circulation patterns."""
         # Get elevation in meters
         elevation = self.climate_data.elevation.values
-    
-        # Calculate pressure using barometric formula with standard parameters
-        # P = P_0 * exp(-elevation / scale_height)
+
+        # Calculate pressure using barometric formula with standard Earth parameters
         scale_height = 8500  # Scale height of Earth's atmosphere (m)
         sea_level_pressure = 1013.25  # Standard sea-level pressure (hPa)
-    
+
         # Apply the barometric formula directly
         pressure = sea_level_pressure * np.exp(-elevation / scale_height)
-    
+
         # Apply global circulation patterns to create realistic pressure systems
         for y in range(self.world_size):
             for x in range(self.world_size):
                 latitude = self.lat_grid[y, x]
-            
+
                 # Create global pressure belts similar to Earth's
                 # - High pressure at subtropical highs (30°N/S) and polar regions
                 # - Low pressure at equator (ITCZ) and subpolar lows (60°N/S)
@@ -247,38 +246,38 @@ class ClimateSystem:
                     pressure_mod = -5.0
                 else:  # Polar high
                     pressure_mod = 5.0
-                
+
                 # Add the modification
                 pressure[y, x] += pressure_mod
-    
+
         # Use Verde's BlockReduce to apply regional smoothing for more realistic patterns
         # This creates larger-scale pressure systems with proper spatial correlation
         block_mean = vd.BlockReduce(np.mean, spacing=3)
-    
+
         # Create a meshgrid of coordinates
         y_coords, x_coords = np.meshgrid(
             np.arange(self.world_size),
             np.arange(self.world_size),
             indexing='ij'
         )
-    
+
         # Flatten the arrays to match what Verde expects
         coordinates = (y_coords.flatten(), x_coords.flatten())
         pressure_flat = pressure.flatten()
-    
+
         # Apply the filtering
         reduced_coords, reduced_pressure = block_mean.filter(coordinates, pressure_flat)
-    
+
         # Now we can use ScipyGridder to interpolate back to our original grid
         pressure_grid = vd.ScipyGridder(method="cubic").fit(reduced_coords, reduced_pressure)
-    
+
         # Grid back to the original resolution
         pressure_interp = pressure_grid.grid(
             region=(0, self.world_size, 0, self.world_size),
             shape=(self.world_size, self.world_size),
             data_names=["pressure"]
         )
-    
+
         # Add random perturbations to create weather systems like highs and lows
         # Use OpenSimplex noise for spatially correlated pressure variations
         noise = np.zeros((self.world_size, self.world_size))
@@ -292,16 +291,16 @@ class ClimateSystem:
                     persistence=0.5, 
                     lacunarity=2.0
                 )
-    
+
         # Scale noise to appropriate pressure variations (±5 hPa)
         noise = noise * 5.0
-    
+
         # Add noise to pressure field
         pressure = pressure_interp.pressure.values + noise
-    
+
         # Ensure pressure stays within realistic bounds (870-1090 hPa: extremes on Earth)
         pressure = np.clip(pressure, 870, 1090)
-    
+
         # Update the dataset
         self.climate_data["pressure"].values = pressure
 
@@ -309,14 +308,13 @@ class ClimateSystem:
         """Generate the base temperature map based on latitude, elevation and complex climate factors."""
         # Create initial temperatures based on latitudinal gradients
         temperatures = np.zeros((self.world_size, self.world_size))
-        
+
         # Implement a more realistic temperature model using real climate science
         for y in range(self.world_size):
             for x in range(self.world_size):
                 latitude = self.lat_grid[y, x]
-                
+
                 # More accurate Earth-like latitudinal temperature model
-                # Based on empirical data of Earth's latitudinal temperature distribution
                 if abs(latitude) < 10:  # Equatorial zone
                     # Warm, but not the warmest due to cloud cover and precipitation
                     base_temp = 26.0
@@ -329,61 +327,75 @@ class ClimateSystem:
                 else:  # Polar
                     # Very cold, approaching -30°C at poles
                     base_temp = -14.0 - (abs(latitude) - 60) * 0.4
-                
+
                 # Apply base temperature relative to global average
                 temperatures[y, x] = self.base_temperature + (base_temp - 14.0)
-        
-        # Apply elevation using proper environmental lapse rate
-        # Standard adiabatic lapse rate is 6.5°C/km but varies by climate zone
+
+        # Apply elevation using a less sensitive lapse rate for fantasy worlds
+        # This allows for extreme terrain without creating physically impossible temperatures
         elevation = self.climate_data.elevation.values
-        
+
         for y in range(self.world_size):
             for x in range(self.world_size):
-                # Different lapse rates for different climate zones
+                # Different lapse rates for different climate zones but reduced for fantasy setting
                 latitude = abs(self.lat_grid[y, x])
                 if latitude < 30:  # Tropical
-                    lapse_rate = 5.5 / 1000.0  # °C/m (less than standard due to humidity)
+                    lapse_rate = 3.5 / 1000.0  # Reduced from Earth's 5.5°C/km
                 elif latitude < 60:  # Temperate
-                    lapse_rate = 6.5 / 1000.0  # Standard lapse rate
+                    lapse_rate = 4.5 / 1000.0  # Reduced from Earth's 6.5°C/km
                 else:  # Polar
-                    lapse_rate = 7.5 / 1000.0  # More than standard due to dry air
+                    lapse_rate = 5.5 / 1000.0  # Reduced from Earth's 7.5°C/km
+
+                # Apply elevation correction with reduced sensitivity
+                # Allow for extreme temperatures but with diminishing returns at great heights
+                normal_drop = elevation[y, x] * lapse_rate
+
+                # Logarithmic scaling for very high elevations to create diminishing returns
+                if elevation[y, x] > 3000:
+                    excess_height = elevation[y, x] - 3000
+                    # Logarithmic scaling factor (1.0 at 3000m, ~1.2 at 5000m, ~1.4 at 10000m)
+                    scaling = 1.0 + 0.3 * np.log10(1 + excess_height / 1000)
                 
-                # Apply elevation correction
-                temperatures[y, x] -= elevation[y, x] * lapse_rate
-        
+                    # Apply the scaled temperature drop
+                    temperature_drop = (3000 * lapse_rate) + (excess_height * lapse_rate / scaling)
+                else:
+                    temperature_drop = normal_drop
+
+                temperatures[y, x] -= temperature_drop
+
         # Apply ocean influence using a proper ocean heat capacity model
         # Oceans have much higher heat capacity and moderate nearby land
         water_mask = self.climate_data.water.values
         land_mask = 1 - water_mask
-        
+
         # Calculate ocean temperature with reduced seasonal variation
         # Ocean temperatures typically lag seasonal changes by about 2 months
         # and have reduced amplitude in yearly variation
         ocean_temps = temperatures.copy() * water_mask
         land_temps = temperatures.copy() * land_mask
-        
+
         # Smooth ocean temperatures to reflect higher heat capacity and mixing
         ocean_temps = ndimage.gaussian_filter(ocean_temps, sigma=5.0)
-        
+
         # Model ocean currents influence by shifting temperatures poleward
         # Use a simplified model of ocean currents based on latitude
         for y in range(self.world_size):
             for x in range(self.world_size):
                 if water_mask[y, x] > 0:
                     latitude = self.lat_grid[y, x]
-                    
+
                     # Western boundary currents (Gulf Stream, Kuroshio) warm high latitudes
                     # Eastern boundary currents cool lower latitudes
                     if 30 < abs(latitude) < 60:  # Mid-latitudes - warming effect
                         ocean_temps[y, x] += 5.0 * np.exp(-(abs(latitude) - 45)**2 / 200)
                     elif abs(latitude) < 30:  # Subtropical - cooling effect
                         ocean_temps[y, x] -= 2.0 * np.exp(-(abs(latitude) - 15)**2 / 200)
-        
+
         # Land-sea temperature contrast - coastal moderation
         # Distance from coast affects temperature moderation
         distance_to_water = ndimage.distance_transform_edt(land_mask)
         coastal_influence = np.exp(-distance_to_water / 20)  # Exponential decay of influence
-        
+
         # Apply coastal moderation - land temps become more like ocean temps near coasts
         moderation_strength = 0.7  # How strongly oceans moderate nearby land
         for y in range(self.world_size):
@@ -392,22 +404,22 @@ class ClimateSystem:
                     # Find average ocean temperature in vicinity
                     y_min, y_max = max(0, y-10), min(self.world_size, y+10)
                     x_min, x_max = max(0, x-10), min(self.world_size, x+10)
-                    
+
                     nearby_ocean = ocean_temps[y_min:y_max, x_min:x_max] * water_mask[y_min:y_max, x_min:x_max]
                     if np.sum(water_mask[y_min:y_max, x_min:x_max]) > 0:
                         mean_ocean_temp = np.sum(nearby_ocean) / np.sum(water_mask[y_min:y_max, x_min:x_max])
-                        
+
                         # Moderate land temperature based on distance to water
                         moderation = coastal_influence[y, x] * moderation_strength
                         land_temps[y, x] = land_temps[y, x] * (1 - moderation) + mean_ocean_temp * moderation
-        
+
         # Combine water and land temperatures
         temperatures = ocean_temps + land_temps
-        
+
         # Apply continental climate effects (greater temperature extremes away from oceans)
         # Continental interiors have greater temperature variations
         continental_effect = distance_to_water / np.max(distance_to_water) * 10.0  # Up to 10°C effect
-        
+
         # Apply the effect differently based on latitude
         # Mid-latitudes experience stronger continental effects
         for y in range(self.world_size):
@@ -418,10 +430,10 @@ class ClimateSystem:
                         latitude_factor = 1.0
                     else:
                         latitude_factor = max(0, 1.0 - abs(latitude - 45) / 45)
-                    
+
                     # Continental interiors are cooler in this base map (will vary with seasons)
                     temperatures[y, x] -= continental_effect[y, x] * latitude_factor * 0.5
-        
+
         # Update the dataset
         self.climate_data["temperature"].values = temperatures
 
@@ -429,70 +441,141 @@ class ClimateSystem:
         """Generate wind patterns based on pressure gradients, Coriolis force, and thermal effects."""
         # Get pressure field and calculate gradients
         pressure = self.climate_data.pressure.values
-        
+
         # Calculate gradients (hPa per grid cell)
         dy, dx = np.gradient(pressure)
-        
+
+        # Apply stronger smoothing to gradients to create more coherent patterns
+        dx = ndimage.gaussian_filter(dx, sigma=3.5)  # Increased smoothing
+        dy = ndimage.gaussian_filter(dy, sigma=3.5)  # Increased smoothing
+
         # Convert gradients to proper units (Pa/m)
         # 1 hPa = 100 Pa
         # Need to divide by distance between grid cells
-        cell_size_m = self.planetary.km_per_cell * 1000  # Convert km to m
+        # Using the physics_radius for physical calculations
+        if hasattr(self.planetary, 'physics_radius_km'):
+            # Use the physics cell size rather than display cell size
+            physics_circumference = 2 * np.pi * self.planetary.physics_radius_km
+            cell_size_m = (physics_circumference * 1000) / self.world_size  # Convert km to m
+        else:
+            # Fallback to display cell size if physics radius not available
+            cell_size_m = self.planetary.km_per_cell * 1000  # Convert km to m
+        
         dx_pam = dx * 100 / cell_size_m  # Pa/m
         dy_pam = dy * 100 / cell_size_m  # Pa/m
-        
+
         # Get Coriolis parameter
         f = self.climate_data.coriolis.values
-        
+
         # Initialize wind components
         u_geo = np.zeros((self.world_size, self.world_size))
         v_geo = np.zeros((self.world_size, self.world_size))
-        
+
         # Air density (kg/m³) - decreases with height
-        rho = 1.225 * np.exp(-self.climate_data.elevation.values / 8500)
-        
+        # Limit the density range to prevent unrealistic winds at extreme elevations
+        elevation = np.clip(self.climate_data.elevation.values, 0, 10000)  # Cap elevation for density calculation
+        rho = 1.225 * np.exp(-elevation / 8500)
+
+        # Ensure reasonable density range
+        rho = np.clip(rho, 0.5, 1.225)  # Limit density to reasonable atmospheric values
+
         # Calculate geostrophic wind, handling the equatorial case
         for y in range(self.world_size):
             for x in range(self.world_size):
                 if abs(f[y, x]) > 1e-10:  # Away from equator
-                    # Geostrophic wind equation
-                    u_geo[y, x] = -1 / (rho[y, x] * f[y, x]) * dy_pam[y, x]
-                    v_geo[y, x] = 1 / (rho[y, x] * f[y, x]) * dx_pam[y, x]
+                    # Geostrophic wind equation with reduced sensitivity
+                    # Further reduce the scaling factor for more moderate winds
+                    u_geo[y, x] = -1 / (rho[y, x] * f[y, x]) * dy_pam[y, x] * 0.3  # Reduced from 0.5
+                    v_geo[y, x] = 1 / (rho[y, x] * f[y, x]) * dx_pam[y, x] * 0.3  # Reduced from 0.5
                 else:  # Near equator
                     # Use thermal wind approximation
                     # Winds flow from high to low pressure directly
                     magnitude = np.sqrt(dx_pam[y, x]**2 + dy_pam[y, x]**2)
                     if magnitude > 0:
-                        u_geo[y, x] = -dx_pam[y, x] / magnitude * 10
-                        v_geo[y, x] = -dy_pam[y, x] / magnitude * 10
-        
-        # Apply thermal wind effects (vertical wind shear due to temperature gradients)
+                        # Reduce equatorial wind speed
+                        u_geo[y, x] = -dx_pam[y, x] / magnitude * 4  # Reduced from 5
+                        v_geo[y, x] = -dy_pam[y, x] / magnitude * 4  # Reduced from 5
+    
+        # Create large-scale circulation pattern overlays based on latitude
+        # This will enforce more realistic global wind patterns
+        trade_wind_u = np.zeros((self.world_size, self.world_size))
+        westerlies_u = np.zeros((self.world_size, self.world_size))
+        polar_u = np.zeros((self.world_size, self.world_size))
+    
+        for y in range(self.world_size):
+            for x in range(self.world_size):
+                latitude = self.lat_grid[y, x]
+            
+                # Trade winds (easterlies): 0-30° N/S 
+                if abs(latitude) < 30:
+                    # Strength peaks at about 15° latitude
+                    strength = 5.0 * (1.0 - abs(abs(latitude) - 15) / 15)
+                    # Westward flow (negative u)
+                    trade_wind_u[y, x] = -strength
+                
+                # Westerlies: 30-60° N/S
+                elif abs(latitude) < 60:
+                    # Strength peaks at about 45° latitude
+                    strength = 8.0 * (1.0 - abs(abs(latitude) - 45) / 15)
+                    # Eastward flow (positive u)
+                    westerlies_u[y, x] = strength
+                
+                # Polar easterlies: 60-90° N/S
+                else:
+                    # Strength increases toward poles
+                    strength = 4.0 * (abs(latitude) - 60) / 30
+                    # Westward flow (negative u)
+                    polar_u[y, x] = -strength
+    
+        # Apply the large-scale patterns with a blend factor
+        blend_factor = 0.7  # How strongly to enforce global circulation pattern
+        u_geo = u_geo * (1 - blend_factor) + (trade_wind_u + westerlies_u + polar_u) * blend_factor
+    
+        # Apply thermal wind effects with reduced strength
         temperature = self.climate_data.temperature.values
         dt_dy, dt_dx = np.gradient(temperature)
-        
-        # Apply thermal wind correction (simplified)
+
+        # Smooth temperature gradients more aggressively
+        dt_dx = ndimage.gaussian_filter(dt_dx, sigma=3.0)  # Increased from 2.0
+        dt_dy = ndimage.gaussian_filter(dt_dy, sigma=3.0)  # Increased from 2.0
+
+        # Apply thermal wind correction with reduced influence
         for y in range(self.world_size):
             for x in range(self.world_size):
                 if abs(f[y, x]) > 1e-10:  # Away from equator
-                    # Stronger westerlies with stronger north-south temperature gradient
-                    u_geo[y, x] -= dt_dy[y, x] * 0.5
-                    v_geo[y, x] += dt_dx[y, x] * 0.5
+                    # Further reduce thermal wind influence
+                    u_geo[y, x] -= dt_dy[y, x] * 0.1  # Reduced from 0.2
+                    v_geo[y, x] += dt_dx[y, x] * 0.1  # Reduced from 0.2
+    
+        # Apply logarithmic scaling to extreme winds
+        wind_speed = np.sqrt(u_geo**2 + v_geo**2)
+    
+        # More aggressive scaling for extreme winds
+        threshold = 30.0  # Lower threshold for scaling
+        extreme_mask = wind_speed > threshold
+    
+        if np.any(extreme_mask):
+            # Calculate scaling factors that reduce extreme values but preserve patterns
+            excess = wind_speed[extreme_mask] - threshold
+            scaling = 1.0 + np.log10(1.0 + excess) * 1.5  # Stronger scaling
         
-        # Scale wind to realistic values (typically 0-30 m/s)
-        max_wind = np.max(np.sqrt(u_geo**2 + v_geo**2))
-        if max_wind > 30:
-            scale_factor = 30 / max_wind
-            u_geo *= scale_factor
-            v_geo *= scale_factor
+            # Apply scaling to get new wind speeds
+            new_speeds = threshold + excess / scaling
         
+            # Convert back to scaled u and v components
+            scale_factors = new_speeds / wind_speed[extreme_mask]
+            u_geo[extreme_mask] *= scale_factors
+            v_geo[extreme_mask] *= scale_factors
+    
         # Apply boundary layer effects
         # Near surface, friction reduces wind speed and causes cross-isobaric flow
         terrain_roughness = np.zeros_like(self.heightmap)
         water_mask = self.climate_data.water.values
         land_mask = 1 - water_mask
-        
+
         # Ocean has low roughness
         terrain_roughness[water_mask > 0] = 0.1
-        
+
         # Land has variable roughness based on elevation variability
         for y in range(1, self.world_size-1):
             for x in range(1, self.world_size-1):
@@ -503,108 +586,118 @@ class ClimateSystem:
                         self.heightmap[y, x-1], self.heightmap[y, x+1]
                     ]
                     # Variance as measure of roughness
-                    terrain_roughness[y, x] = 0.3 + np.var(neighbors) * 5.0
-        
+                    # Cap roughness to prevent excessive wind reduction
+                    variance = np.var(neighbors)
+                    terrain_roughness[y, x] = 0.3 + min(variance * 5.0, 0.5)
+
         # Apply friction - reduce speed and turn wind toward low pressure
         u_sfc = np.zeros_like(u_geo)
         v_sfc = np.zeros_like(v_geo)
-        
+
         for y in range(self.world_size):
             for x in range(self.world_size):
                 # Reduction factor based on roughness
                 reduction = 1.0 - 0.5 * terrain_roughness[y, x]
                 reduction = max(0.2, min(0.9, reduction))  # Limit range
-                
+        
                 # Turning angle based on roughness (10-30°)
                 angle_rad = np.radians(10 + 20 * terrain_roughness[y, x])
-                
+        
                 # Apply reduction and turning
                 speed = np.sqrt(u_geo[y, x]**2 + v_geo[y, x]**2)
                 if speed > 0:
                     dir_x, dir_y = u_geo[y, x] / speed, v_geo[y, x] / speed
-                    
+            
                     # Rotate wind vector (simple 2D rotation)
                     new_dir_x = dir_x * np.cos(angle_rad) - dir_y * np.sin(angle_rad)
                     new_dir_y = dir_x * np.sin(angle_rad) + dir_y * np.cos(angle_rad)
-                    
+            
                     # Apply new direction and reduced speed
                     u_sfc[y, x] = new_dir_x * speed * reduction
                     v_sfc[y, x] = new_dir_y * speed * reduction
-        
-        # Apply local circulation effects (sea/land breezes, mountain/valley winds)
-        # These are driven by differential heating
-        
+
+        # Apply local circulation effects with reduced strength
+        local_circulation_factor = 0.3  # Further reduced from 0.5
+
         # Sea-land breeze effect near coastlines
         distance_to_coast = np.minimum(
             ndimage.distance_transform_edt(water_mask),
             ndimage.distance_transform_edt(land_mask)
         )
         coastal_zone = distance_to_coast < 10
-        
+
         # Direction depends on time of day (simplified)
         is_day = np.mean(self.planetary.day_night_mask) > 0.5
-        coastal_wind_strength = 2.0  # m/s
-        
+        coastal_wind_strength = 2.0 * local_circulation_factor
+
         for y in range(self.world_size):
             for x in range(self.world_size):
                 if coastal_zone[y, x]:
                     # Find direction to nearest water
                     y_min, y_max = max(0, y-5), min(self.world_size, y+5)
                     x_min, x_max = max(0, x-5), min(self.world_size, x+5)
-                    
+            
                     local_water = water_mask[y_min:y_max, x_min:x_max]
                     local_land = land_mask[y_min:y_max, x_min:x_max]
-                    
+            
                     if np.sum(local_water) > 0 and np.sum(local_land) > 0:
                         # Calculate average water and land positions
                         y_indices, x_indices = np.mgrid[y_min:y_max, x_min:x_max]
-                        
+                
                         water_y = np.sum(y_indices * local_water) / np.sum(local_water) - y
                         water_x = np.sum(x_indices * local_water) / np.sum(local_water) - x
-                        
+                
                         # Normalize direction vector
                         dist = np.sqrt(water_y**2 + water_x**2)
                         if dist > 0:
                             dir_y, dir_x = water_y / dist, water_x / dist
-                            
+                    
                             # During day: sea breeze (from sea to land)
                             # During night: land breeze (from land to sea)
                             if is_day:
                                 dir_y, dir_x = -dir_y, -dir_x
-                            
+
                             # Add to existing wind
                             strength = coastal_wind_strength * (1.0 - distance_to_coast[y, x] / 10)
                             u_sfc[y, x] += dir_x * strength
                             v_sfc[y, x] += dir_y * strength
-        
-        # Mountain/valley winds near significant slopes
+
+        # Mountain/valley winds with reduced strength
         dy_terrain, dx_terrain = np.gradient(self.heightmap)
         slope_magnitude = np.sqrt(dx_terrain**2 + dy_terrain**2)
         mountain_areas = slope_magnitude > 0.05
-        
+
         for y in range(self.world_size):
             for x in range(self.world_size):
                 if mountain_areas[y, x] and land_mask[y, x] > 0:
                     # Direction of the slope
                     if slope_magnitude[y, x] > 0:
                         slope_y, slope_x = dy_terrain[y, x] / slope_magnitude[y, x], dx_terrain[y, x] / slope_magnitude[y, x]
-                        
+                
                         # During day: anabatic (upslope) winds
                         # During night: katabatic (downslope) winds
                         if is_day:
                             dir_y, dir_x = slope_y, slope_x
                         else:
                             dir_y, dir_x = -slope_y, -slope_x
-                        
-                        # Add to existing wind
-                        mountain_strength = 3.0 * slope_magnitude[y, x]
+                
+                        # Reduced mountain wind effects
+                        mountain_strength = 1.5 * slope_magnitude[y, x] * local_circulation_factor  # Reduced from 2.0
                         u_sfc[y, x] += dir_x * mountain_strength
                         v_sfc[y, x] += dir_y * mountain_strength
-        
-        # Final smoothing for realistic wind fields
-        u_final = ndimage.gaussian_filter(u_sfc, sigma=1.0)
-        v_final = ndimage.gaussian_filter(v_sfc, sigma=1.0)
-        
+
+        # Apply stronger final smoothing
+        u_final = ndimage.gaussian_filter(u_sfc, sigma=2.0)  # Increased from 1.5
+        v_final = ndimage.gaussian_filter(v_sfc, sigma=2.0)  # Increased from 1.5
+    
+        # Final scaling to enforce more reasonable average wind speeds
+        wind_speed = np.sqrt(u_final**2 + v_final**2)
+        mean_speed = np.mean(wind_speed)
+        if mean_speed > 10.0:  # If mean wind speed is too high
+            scale_factor = 10.0 / mean_speed
+            u_final *= scale_factor
+            v_final *= scale_factor
+
         # Update the dataset
         self.climate_data["wind_u"].values = u_final
         self.climate_data["wind_v"].values = v_final
@@ -1851,49 +1944,93 @@ class ClimateSystem:
 
     def determine_climate_classification(self, x: int, y: int) -> str:
         """Determine the Köppen climate classification at a position.
-        
+    
         Args:
             x: X coordinate
             y: Y coordinate
-            
+        
         Returns:
-            Köppen climate classification code
+            Köppen climate classification code or water body type
         """
         # Check cache first
         cache_key = (x, y)
         if cache_key in self.biome_cache:
             return self.biome_cache[cache_key]
-        
+
         # Get climate data
         climate = self.get_climate_at_position(x, y)
-        
-        # If water, return ocean
+
+         # If water, determine the type of water body
         if climate["is_water"]:
-            self.biome_cache[cache_key] = "Ocean"
-            return "Ocean"
+            # Check if we have water system information
+            if hasattr(self, 'water_systems') and self.water_systems is not None:
+                # Check if this is ocean, lake, or river
+                if (self.water_systems.get("ocean") is not None and 
+                    self.water_systems["ocean"][y, x] > 0):
+                    water_type = "Ocean"
+                elif (self.water_systems.get("lakes") is not None and 
+                      self.water_systems["lakes"][y, x] > 0):
+                      water_type = "Lake"
+                elif (self.water_systems.get("rivers") is not None and 
+                      self.water_systems["rivers"][y, x] > 0):
+                      water_type = "River"
+                else:
+                    # Default if we can't determine specific water type
+                    water_type = "Water"
+            else:
+                # If water systems aren't available, try to guess based on size
+                # Use connected component analysis to find water body size
+                from scipy import ndimage
+
+                # Create binary water mask if needed
+                if not hasattr(self, '_water_mask'):
+                    self._water_mask = np.zeros((self.world_size, self.world_size), dtype=bool)
+                    for cy in range(self.world_size):
+                        for cx in range(self.world_size):
+                            climate_at_pos = self.get_climate_at_position(cx, cy)
+                            self._water_mask[cy, cx] = climate_at_pos["is_water"]
+            
+                # Label connected water bodies
+                labeled_array, num_features = ndimage.label(self._water_mask)
+            
+                # Get the current water body's size
+                current_label = labeled_array[y, x]
+                water_body_size = np.sum(labeled_array == current_label)
+            
+                # Classify based on size
+                if water_body_size > self.world_size:  # Large water body = ocean
+                    water_type = "Ocean"
+                elif water_body_size > 50:  # Medium size = lake
+                    water_type = "Lake"
+                else:  # Small size = river or small lake
+                    water_type = "River"
         
+            self.biome_cache[cache_key] = water_type
+            return water_type
+
         # Extract key variables
         temp = climate["temperature"]
         precip = climate["precipitation"]
-        
+        elevation = climate["elevation"]
+        latitude = self.lat_grid[y, x]
+
         # Calculate annual precipitation
         annual_precip = precip * 365  # mm/year
-        
+
         # Calculate seasonal temperature variation
-        lat = self.lat_grid[y, x]
-        seasonal_variation = abs(self.planetary.get_seasonal_factor(lat)) * 20  # Approximate temperature range
-        
+        seasonal_variation = abs(self.planetary.get_seasonal_factor(latitude)) * 20  # Approximate temperature range
+
         # Calculate warmest and coldest monthly temperatures (estimated)
         warmest_month = temp + seasonal_variation / 2
         coldest_month = temp - seasonal_variation / 2
-        
+
         # Simplified Köppen climate classification
         # A - Tropical
         # B - Arid
         # C - Temperate
         # D - Continental
         # E - Polar
-        
+
         # Define temperature thresholds
         if coldest_month >= 18:  # Tropical (A)
             if annual_precip >= 60 * 25:  # Af (rainforest) - at least 60mm in driest month
@@ -1902,7 +2039,7 @@ class ClimateSystem:
                 climate_type = "Am"
             else:  # Aw (savanna)
                 climate_type = "Aw"
-                
+
         elif annual_precip < 10 * (temp + seasonal_variation/2):  # Arid (B)
             # Threshold depends on temperature and seasonality
             if annual_precip > 5 * (temp + seasonal_variation/2):  # Semi-arid
@@ -1915,7 +2052,7 @@ class ClimateSystem:
                     climate_type = "BWh"  # Hot desert
                 else:
                     climate_type = "BWk"  # Cold desert
-                    
+        
         elif coldest_month > 0 and warmest_month > 10:  # Temperate (C)
             if annual_precip > 40 * 12:  # Sufficient precipitation
                 # Check seasonal distribution
@@ -1927,7 +2064,7 @@ class ClimateSystem:
                     climate_type = "Cfa" if warmest_month > 22 else "Cfb"
             else:
                 climate_type = "Cs"  # Mediterranean (dry summer)
-                
+    
         elif warmest_month > 10:  # Continental (D)
             if annual_precip > 40 * 12:  # Sufficient precipitation
                 # Check seasonal distribution
@@ -1939,13 +2076,36 @@ class ClimateSystem:
                     climate_type = "Dfa" if warmest_month > 22 else "Dfb"
             else:
                 climate_type = "Df"  # Humid continental
-                
+    
         else:  # Polar (E)
             if warmest_month > 0:
                 climate_type = "ET"  # Tundra
             else:
                 climate_type = "EF"  # Ice cap
-        
+
+        # Adjust for extremely high mountains even in normally warmer zones
+        if elevation > 5000 and climate_type not in ["ET", "EF"]:
+            if warmest_month < 0:
+                climate_type = "EF"  # Ice cap at extreme heights anywhere
+            else:
+                climate_type = "ET"  # Tundra at very high elevations
+
+        # Fix physically implausible classifications due to extreme temperatures
+        # rather than strict rules - for fantasy worlds
+        if climate_type == "EF" and abs(latitude) < 45:
+            # EF in middle latitudes only makes sense at very high elevation
+            if elevation < 4000:
+                # Determine most plausible alternative based on temperature and precipitation
+                if coldest_month < -15:
+                    climate_type = "ET"  # Still very cold, but not permanent ice cap
+                elif coldest_month < 0:
+                    if annual_precip > 500:
+                        climate_type = "Dfc"  # Cold continental forest
+                    else:
+                        climate_type = "Dwc"  # Cold continental with dry winter
+                else:
+                    climate_type = "Cfb"  # Cool temperate
+
         # Cache and return
         self.biome_cache[cache_key] = climate_type
         return climate_type

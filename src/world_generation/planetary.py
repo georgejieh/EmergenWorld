@@ -43,7 +43,8 @@ class PlanetarySystem:
             perihelion_day: Day of year when the planet is closest to its sun
             start_day: Starting day of the simulation (0 to year_length_days-1)
             seasonal_factor: Multiplier to increase or decrease seasonal effects
-            earth_scale: Scale relative to Earth (default 0.83% of Earth)
+            earth_scale: Scale factor for display purposes
+                         (doesn't affect physical calculations)
         """
         self.world_size = world_size
         self.axial_tilt = np.radians(axial_tilt_degrees)
@@ -57,21 +58,28 @@ class PlanetarySystem:
         self.earth_scale = earth_scale
 
         # Derived planetary properties
-        # Earth radius × scale
+        # For display purposes - scaled-down map representation
         self.planet_radius_km = 6371.0 * np.sqrt(earth_scale)
         self.planet_circumference_km = 2 * np.pi * self.planet_radius_km
         self.km_per_cell = self.planet_circumference_km / world_size
 
+        # For physical calculations - use full Earth properties
+        self.physics_radius_km = 6371.0  # Always use full Earth radius for physics
+        self.physics_circumference_km = 2 * np.pi * self.physics_radius_km
+
+        # Add flag to signal whether to use scaled or full-sized planet physics
+        self.use_scaled_physics = False  # Default to Earth-sized physics
+
         # Initialize coordinate system
         self._initialize_coordinates()
-
+    
         # Set up the sun and observer for ephem calculations
         self._setup_celestial_objects()
-
+    
         # Create day/night mask and solar radiation map
         self.day_night_mask = np.zeros((world_size, world_size), dtype=bool)
         self.solar_radiation = np.zeros((world_size, world_size))
-
+    
         # Update the initial state
         self.update_sun_position()
 
@@ -87,6 +95,7 @@ class PlanetarySystem:
         msg += f"Cell size: {self.km_per_cell:.1f} km"
         print(msg)
         print(f"Starting on day {start_day} (day {self.current_day} of year)")
+        print(f"Note: Physics calculations use full Earth-sized planet properties")
 
     def _initialize_coordinates(self) -> None:
         """Initialize the latitude and longitude grids for the world."""
