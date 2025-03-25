@@ -4,8 +4,6 @@ This script shows how to create terrain, initialize a planetary system,
 and generate climate patterns using the climate system module.
 """
 
-import os
-import sys
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,6 +22,12 @@ def main():
     parser.add_argument('--quick', action='store_true', help='Use faster generation with less detail')
     parser.add_argument('--show-all', action='store_true', help='Show all climate visualizations')
     args = parser.parse_args()
+    
+    # Manual Override of Arguments When Running on IDE
+    args.size = 1024
+    args.fantasy = 1
+    args.show_all = True
+    args.quick = False
     
     # Adjust parameters based on quick mode
     if args.quick:
