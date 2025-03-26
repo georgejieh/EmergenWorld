@@ -312,7 +312,7 @@ When the simulation has run for thousands or millions of virtual years, users ca
 > - Absence of complete magical knowledge
 > - Mental defense mechanisms against consciousness transformation
 >
-> *Perhaps one in ten thousand individuals may reach the Seventh Sphere, and many settlements will never know such a being among them. Their rarity makes them objects of legend and reverence, though their perspective often renders them somewhat detached from conventional society.*
+> *Perhaps one in ten thousand non-gifted individuals may reach the Seventh Sphere, while most gifted individuals who discover their abilities and receive proper training will naturally progress to this level. Even so, many settlements will never know such a being among them, as their rarity makes them objects of legend and reverence, though their perspective often renders them somewhat detached from conventional society.*
 >
 > ---
 >
@@ -344,7 +344,7 @@ When the simulation has run for thousands or millions of virtual years, users ca
 > - The responsibility of knowledge transmission to future generations
 > - The isolation that comes with unique perception of reality
 >
-> *The Eighth Sphere has no completion point and may be entered by perhaps one in one hundred thousand of those who achieve the Seventh Sphere, making such individuals exceedingly rare - perhaps a handful in an entire age of the world.*
+> *The Eighth Sphere has no completion point and may be entered by perhaps one in one hundred thousand of those non-gifted individuals who achieve the Seventh Sphere, though gifted individuals progress at a somewhat higher rate if they possess the drive for theoretical innovation. Such individuals remain exceedingly rare - perhaps a handful in an entire age of the world.*
 >
 > ---
 >
