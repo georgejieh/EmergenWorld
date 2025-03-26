@@ -258,10 +258,9 @@ When the simulation has run for thousands or millions of virtual years, users ca
 > - Works of transcendent artistic beauty
 > - Revolutionary inventions and discoveries
 > - Individuals pursuing unique life purposes
-> - Master enchanters and spell-crafters among the gifted
+> - Apprentice/Journeyman enchanters and spell-crafters among the gifted
 > - Exploration beyond known boundaries
 > - Symphonies, grand philosophies, and other works of intellectual synthesis
-> - Rare magical implements created by gifted practitioners
 >
 > **Individual Needs:**
 > - Mastery of a discipline through decades of devoted practice
