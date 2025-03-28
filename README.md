@@ -317,7 +317,7 @@ When the simulation has run for thousands or millions of virtual years, users ca
 >
 > ### Eighth Sphere: The Infinite Self
 >
-> *[Note: The existence of an Eighth Sphere remains theoretical, with limited evidence in ancient texts. What follows is compiled from fragmentary sources and the testimonies of those rare individuals believed to have glimpsed its nature.]*
+> *[Note: While the Eighth Sphere is recognized by those of sufficient advancement, its true nature as an infinite progression defies complete documentation. What follows is compiled from the accounts of those who have achieved this state and the observations of those who have studied under their guidance.]*
 >
 > Beyond the Seven acknowledged Spheres lies a realm of consciousness that defies conventional understanding - not a static state but an infinite progression. Those who enter this Sphere become researchers of reality itself, expanding magical knowledge beyond established boundaries.
 >
@@ -465,7 +465,7 @@ When the simulation has run for thousands or millions of virtual years, users ca
 >
 > **The First and Second Circles** correspond to foundational scholarly knowledge achieved in the Fifth Sphere of consciousness. These represent the entry points to formalized education - the mastery of basic principles, terminology, and historical context necessary before true specialization can begin. Non-magical disciplines such as medicine, engineering, and natural philosophy utilize these Circles to denote apprentices and journeymen in their fields.
 >
-> **The Third, Fourth, and Fifth Circles** represent the progressive mastery achieved in the Sixth Sphere. Third Circle scholars have grasped the essential principles of their discipline, Fourth Circle scholars have begun to apply these principles creatively, and Fifth Circle scholars have achieved mastery of existing knowledge in their field. For magic-sensitive individuals, the Third Circle marks the beginning of actual spellcasting ability, while for non-magical disciplines, the Fifth Circle represents the highest achievement possible.
+> **The Third, Fourth, and Fifth Circles** represent the progressive mastery achieved in the Sixth Sphere. Third Circle scholars have grasped the essential principles of their discipline, Fourth Circle scholars have begun to apply these principles creatively, and Fifth Circle scholars have achieved mastery of existing knowledge in their field. For magic-sensitive individuals, the Fourth Circle marks the beginning of actual spellcasting ability, while for non-magical disciplines, the Fifth Circle represents the highest achievement possible.
 >
 > **The Sixth through Ninth Circles** are exclusive to magical knowledge and correspond to the Seventh Sphere of consciousness. These distinctions mark increasingly profound understanding of mana manipulation, with Ninth Circle mages having achieved complete mastery of traditional magical systems. While non-magical disciplines cannot formally progress beyond the Fifth Circle, rare transcendent masters of other arts who reach the Seventh Sphere often receive honorary recognition at these levels, as their disciplines begin to manifest magical properties through their transcendent understanding.
 >
